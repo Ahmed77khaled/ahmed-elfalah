@@ -1,30 +1,32 @@
 ---
 name: Photo integration
-description: How to add Ahmed's personal photo to the portfolio Hero section.
+description: How Ahmed's personal photo is integrated into the portfolio Hero section.
 ---
 
-# Adding a Personal Photo to the Portfolio
+# Personal Photo — Hero PortraitOrb
 
-## Where the photo goes
-**Best location: Hero section → `PortraitOrb` component** — this is the circular frame on the right side of the hero. It currently shows an abstract glowing SVG silhouette as a placeholder.
+## Current state (as of 2026-07-30)
+Photo is **live**. File: `attached_assets/IMG-20260724-WA0036.jpg_1785384762208.jpeg`
 
-## How to add it (2 steps)
-1. Upload the photo file to `attached_assets/` (e.g. `attached_assets/ahmed.jpg`).
-2. Open `artifacts/portfolio/src/components/sections/Hero.tsx` and change line:
-   ```ts
-   const PORTRAIT_SRC: string | null = null;
-   ```
-   to:
-   ```ts
-   const PORTRAIT_SRC: string | null = "@assets/ahmed.jpg";
-   ```
-   (`@assets` is aliased to `../../attached_assets` in `artifacts/portfolio/vite.config.ts`)
+Imported in `artifacts/portfolio/src/components/sections/Hero.tsx`:
+```ts
+import portraitPhoto from "@assets/IMG-20260724-WA0036.jpg_1785384762208.jpeg";
+const PORTRAIT_SRC: string | null = portraitPhoto;
+```
+(`@assets` is aliased to the monorepo-root `attached_assets/` dir in `artifacts/portfolio/vite.config.ts`)
 
-## What happens when photo is set
-- The orb shows the real photo (`object-cover object-top` so face is prioritised).
-- A subtle gradient fade at the bottom blends the photo into the dark background.
-- A cyan rim-light ring overlay keeps the futuristic aesthetic.
-- The spinning rings and floating badges stay exactly as before.
+## What the orb shows when PORTRAIT_SRC is set
+- `<img>` with `object-cover object-top` so the face is prioritised
+- Subtle gradient fade at bottom blends photo into dark background
+- Cyan rim-light ring overlay (inset box-shadow) maintains the futuristic aesthetic
+- Spinning outer rings and floating badges stay intact around the orb
 
-## Why this location
-The Hero orb is the most prominent visual in the portfolio — first thing visitors see. A real photo here makes the portfolio personal and memorable. The About section is text-only, so there is no natural photo slot there.
+## To swap the photo later
+1. Upload the new image to `attached_assets/`.
+2. Change the `import portraitPhoto from ...` line at the top of `Hero.tsx` to point to the new file.
+3. No other changes needed.
+
+## To revert to placeholder silhouette
+Set `const PORTRAIT_SRC: string | null = null;` — the abstract SVG with scan-line animation will render instead.
+
+**Why this location:** Hero orb is the first thing visitors see — makes the portfolio personal and memorable.

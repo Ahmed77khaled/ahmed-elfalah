@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Download, Mail, ChevronDown, Linkedin } from "lucide-react";
 import { SiFacebook, SiYoutube } from "react-icons/si";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
+import portraitPhoto from "@assets/IMG-20260724-WA0036.jpg_1785384762208.jpeg";
 
 const TYPING_TEXTS = [
   "UI/UX Designer",
@@ -60,7 +61,7 @@ const socialLinks = [
 //   1. Upload your image to attached_assets/ (e.g. attached_assets/ahmed.jpg)
 //   2. Change PORTRAIT_SRC below to "@assets/ahmed.jpg"
 //   3. Save — the photo will appear inside the glowing orb with the same rings
-const PORTRAIT_SRC: string | null = null;
+const PORTRAIT_SRC: string | null = portraitPhoto;
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Portrait orb component
