@@ -194,8 +194,23 @@ export function Contact() {
     }
 
     setSubmitting(true);
-    // Simulate sending
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const botToken = "8790393178:AAEJKEMwituS7Exp9xmcDrLESF1_fUYqc8c";
+      const chatId = "8275645729";
+      const text = `🔔 *New Portfolio Message!*\n\n👤 *Name:* ${form.name}\n📧 *Email:* ${form.email}\n📌 *Subject:* ${form.subject}\n\n📝 *Message:*\n${form.message}`;
+
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text,
+          parse_mode: "Markdown",
+        }),
+      });
+    } catch {
+      // Ignore network errors
+    }
     setSubmitting(false);
     setSubmitted(true);
     setForm({ name: "", email: "", subject: "", message: "" });
