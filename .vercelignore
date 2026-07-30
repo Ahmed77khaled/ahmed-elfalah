@@ -1,0 +1,9 @@
+node_modules
+.git
+.local
+.cache
+attached_assets
+artifacts/*/dist
+dist
+tmp
+*.tsbuildinfo
