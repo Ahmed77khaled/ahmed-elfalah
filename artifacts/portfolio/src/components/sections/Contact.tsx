@@ -199,15 +199,31 @@ export function Contact() {
       const chatId = "8275645729";
       const text = `🔔 *New Portfolio Message!*\n\n👤 *Name:* ${form.name}\n📧 *Email:* ${form.email}\n📌 *Subject:* ${form.subject}\n\n📝 *Message:*\n${form.message}`;
 
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: text,
-          parse_mode: "Markdown",
+      await Promise.allSettled([
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: text,
+            parse_mode: "Markdown",
+          }),
         }),
-      });
+        fetch("https://formsubmit.co/ajax/ahmed.khaled.elfalah@gmail.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            _subject: `New Portfolio Message: ${form.subject}`,
+            message: form.message,
+            _captcha: "false"
+          }),
+        })
+      ]);
     } catch {
       // Ignore network errors
     }
