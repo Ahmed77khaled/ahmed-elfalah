@@ -1,32 +1,41 @@
 ---
 name: Photo integration
-description: How Ahmed's personal photo is integrated into the portfolio Hero section.
+description: Ahmed's personal photo is live in the Hero PortraitOrb — how it works and how to change it.
 ---
 
 # Personal Photo — Hero PortraitOrb
 
-## Current state (as of 2026-07-30)
-Photo is **live**. File: `attached_assets/IMG-20260724-WA0036.jpg_1785384762208.jpeg`
+## Current state
+Photo is **live** as of 2026-07-30.
+File: `attached_assets/IMG-20260724-WA0036.jpg_1785384762208.jpeg`
 
-Imported in `artifacts/portfolio/src/components/sections/Hero.tsx`:
+## How it's wired
+In `artifacts/portfolio/src/components/sections/Hero.tsx`:
+
 ```ts
+// Static import at top of file:
 import portraitPhoto from "@assets/IMG-20260724-WA0036.jpg_1785384762208.jpeg";
+
+// Config constant (just below imports):
 const PORTRAIT_SRC: string | null = portraitPhoto;
 ```
-(`@assets` is aliased to the monorepo-root `attached_assets/` dir in `artifacts/portfolio/vite.config.ts`)
 
-## What the orb shows when PORTRAIT_SRC is set
-- `<img>` with `object-cover object-top` so the face is prioritised
-- Subtle gradient fade at bottom blends photo into dark background
-- Cyan rim-light ring overlay (inset box-shadow) maintains the futuristic aesthetic
-- Spinning outer rings and floating badges stay intact around the orb
+`@assets` is an alias in `vite.config.ts` that resolves to `<repo-root>/attached_assets/`.
 
-## To swap the photo later
-1. Upload the new image to `attached_assets/`.
-2. Change the `import portraitPhoto from ...` line at the top of `Hero.tsx` to point to the new file.
-3. No other changes needed.
+**Important:** always use a static `import` statement — do NOT use `new URL(..., import.meta.url)` for this alias; Vite resolves `@assets` at build time via the alias, and `new URL` bypasses that.
+
+## What the orb renders when PORTRAIT_SRC is set
+- `<img>` with `object-cover object-top` (face is shown, not feet)
+- Gradient overlay: `transparent 55% → background/55% 100%` — fades photo into dark background at bottom
+- Cyan rim-light: `inset box-shadow hsl(var(--primary) / 0.15)` — futuristic glow preserved
+- Spinning outer rings + dashed counter-ring + floating skill badges all stay around the orb
+
+## To swap to a new photo
+1. Upload new image to `attached_assets/`
+2. Change the `import portraitPhoto from ...` line to the new filename
+3. `PORTRAIT_SRC` stays as `portraitPhoto` — no other changes
 
 ## To revert to placeholder silhouette
-Set `const PORTRAIT_SRC: string | null = null;` — the abstract SVG with scan-line animation will render instead.
+Set `const PORTRAIT_SRC: string | null = null;` — renders the abstract SVG with head/shoulders silhouette + scan-line animation.
 
-**Why this location:** Hero orb is the first thing visitors see — makes the portfolio personal and memorable.
+**Why Hero orb:** it's the first element visitors see — most impactful spot for a real photo.

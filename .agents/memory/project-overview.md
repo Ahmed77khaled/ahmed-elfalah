@@ -1,28 +1,38 @@
 ---
 name: Project overview
-description: High-level facts about the Fel7o Portfolio project — stack, owner, key content.
+description: High-level facts about the Fel7o Portfolio — owner, stack, content, key constraints.
 ---
 
 # Fel7o Portfolio — Project Overview
 
-**Owner:** Ahmed El-Falah — UI/UX Designer, Python Dev, Network Engineer, DevOps enthusiast. Based in Port Said, Egypt.
+## Owner
+**Ahmed El-Falah** — Brand handle: **Fel7o** (always spelled exactly: capital F, number 7, lowercase o)
+- Roles: UI/UX Designer, Python Developer, Network Engineer, DevOps Enthusiast
+- Location: Port Said, Egypt
+- Social: LinkedIn, Facebook, YouTube, Email (all linked in Hero section)
+- GitHub: https://github.com/Ahmed77khaled/ahmed-elfalah
 
-**Stack:** pnpm monorepo → `artifacts/portfolio` (Vite + React + Tailwind v4), `artifacts/fel7o-ds` (custom design system), `artifacts/api-server` (Express, not used by portfolio), `artifacts/mockup-sandbox`.
+## What this is
+A personal portfolio website. 100% static frontend — no backend, no database, no API calls.
 
-**Portfolio is purely frontend** — no API routes, no database. All content is hardcoded in the components.
+## Stack summary
+- pnpm monorepo → `artifacts/portfolio` (Vite + React 19 + Tailwind v4)
+- Design system: `@workspace/fel7o-ds` (local workspace package)
+- Animations: Framer Motion + GSAP
+- Smooth scroll: @studio-freight/lenis
+- Routing: wouter (single route — just `/`)
 
-**Key content per section:**
-- Hero: Hi I'm Ahmed, typing effect (5 roles), social links (LinkedIn/Facebook/YouTube/Email), portrait orb
-- About: timeline 2022→Now, values grid
-- Skills: tech skills with levels
-- Projects: project cards
-- Services: offered services
-- Experience: work timeline
-- Stats: numbers section
-- Testimonials
-- Contact: contact form (client-side only, no backend)
-- Footer
+## Communication preference
+Ahmed writes in Arabic. Always respond in Arabic for this project unless he switches to English.
 
-**Entry point:** `artifacts/portfolio/src/pages/Home.tsx` — initialises Lenis smooth scroll + loading state.
+## Color identity
+- Primary: electric cyan `#00D4FF` — used for glow, rings, accents
+- Accent: violet `#7C3AED` — used for highlights
+- Background: deep navy `#050816`
+- No warm colors anywhere in the design
 
-**Why:** Imported from Vercel, ported to Replit pnpm workspace.
+## Section order (as rendered in Home.tsx)
+LoadingScreen → CustomCursor + ScrollProgress + MouseGlow → AnimatedBackground → Navbar → Hero → About → Skills → Projects → Services → Experience → Stats → Testimonials → Contact → Footer
+
+## Key file: `artifacts/portfolio/src/pages/Home.tsx`
+This is the app entry point and controls: Lenis init, loading screen timer, section rendering order.

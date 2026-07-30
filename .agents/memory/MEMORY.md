@@ -1,4 +1,6 @@
 - [Project overview](project-overview.md) — Fel7o Portfolio: pnpm workspace, Vite+React frontend, Fel7o Design System, no backend in use
 - [Artifact layout](artifact-layout.md) — which artifacts exist, what paths they serve, confirmed running state
 - [Design system](design-system.md) — @workspace/fel7o-ds tokens, theme colors, how consumers import it
-- [Photo integration](photo-integration.md) — how to add Ahmed's personal photo to the Hero orb
+- [Photo integration](photo-integration.md) — Ahmed's photo is live in Hero; how to swap it
+- [GitHub push](github-push.md) — Replit Git UI is broken; use shell + GITHUB_TOKEN secret instead
+- [Scroll and loading](scroll-loading.md) — Lenis config, loading screen duration, key timing values

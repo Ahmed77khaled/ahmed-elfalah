@@ -1,28 +1,54 @@
 ---
 name: Design system
-description: How the Fel7o Design System works, its colors, and how the portfolio consumes it.
+description: @workspace/fel7o-ds — tokens, colors, fonts, and how the portfolio consumes it.
 ---
 
 # Fel7o Design System (`artifacts/fel7o-ds`)
 
-## Theme colors (from `tokens.json`)
-| Token | Dark value | Light value |
-|---|---|---|
-| background | `#050816` (deep navy) | `#F0F4FF` |
-| foreground | `#F0F4FF` | `#050816` |
-| primary | `#00D4FF` (electric cyan) | `#0099CC` |
-| accent | `#7C3AED` (violet) | `#6D28D9` |
-| card | `#0D1224` | `#FFFFFF` |
-| border | `#1A2540` | `#D1D8F0` |
+## Theme colors
+| CSS Variable | Dark value | Light value | Usage |
+|---|---|---|---|
+| `--background` | `#050816` | `#F0F4FF` | Page background |
+| `--foreground` | `#F0F4FF` | `#050816` | Body text |
+| `--primary` | `#00D4FF` | `#0099CC` | Electric cyan — glows, rings, CTAs |
+| `--accent` | `#7C3AED` | `#6D28D9` | Violet — secondary highlights |
+| `--card` | `#0D1224` | `#FFFFFF` | Card backgrounds |
+| `--border` | `#1A2540` | `#D1D8F0` | Dividers, outlines |
+| `--muted` | (dark neutral) | (light neutral) | Muted text |
 
-**Fonts:** `--app-font-sans: Inter`, `--app-font-mono: Fira Code`
+Always use `hsl(var(--primary))` form — never hardcode hex values.
+
+## Typography
+- `--app-font-sans: Inter` — loaded via Google Fonts in `artifacts/portfolio/index.html`
+- `--app-font-mono: Fira Code` — loaded via Google Fonts in `artifacts/portfolio/index.html`
 
 ## How the portfolio consumes it
-1. `artifacts/portfolio/src/index.css` starts with `@import "@workspace/fel7o-ds/styles.css"` — this pulls in ALL theme variables and Tailwind setup. The portfolio's own CSS adds only portfolio-specific animations/utilities on top.
-2. Components are imported directly: `import { Button } from "@workspace/fel7o-ds/components/ui/button"`.
-3. The generated token object lives at `artifacts/fel7o-ds/src/generated/tokens.tsx`.
 
-## CSS variables pattern
-All colors use `hsl(var(--primary))` pattern. The `:root` block is in `artifacts/fel7o-ds/src/index.css` (generated from tokens.json).
+### CSS (tokens + Tailwind setup)
+`artifacts/portfolio/src/index.css` starts with:
+```css
+@import "@workspace/fel7o-ds/styles.css";
+```
+This pulls ALL theme variables and Tailwind config. Do NOT add a second Tailwind `@import` or another `:root {}` block in the portfolio — it will conflict.
 
-**Why:** Portfolio has no local `src/components/ui/` that it actually uses — all UI components come from the design system package.
+### Components
+```ts
+import { Button } from "@workspace/fel7o-ds/components/ui/button";
+import { Toaster } from "@workspace/fel7o-ds/components/ui/toaster";
+import { TooltipProvider } from "@workspace/fel7o-ds/components/ui/tooltip";
+```
+
+### Package reference in portfolio's package.json
+```json
+"devDependencies": {
+  "@workspace/fel7o-ds": "workspace:*"
+}
+```
+
+## Design system docs
+Located at `artifacts/fel7o-ds/docs/`:
+- `consuming-web.md` — full guide for React/Vite consumers
+- `consuming-expo.md` — Expo guide (not implemented)
+- `migrating-web.md` — migration notes
+
+**Why devDependencies:** pnpm workspace local packages go in devDependencies by convention in this monorepo.

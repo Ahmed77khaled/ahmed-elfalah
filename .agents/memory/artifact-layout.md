@@ -1,22 +1,33 @@
 ---
 name: Artifact layout
-description: All artifacts in the workspace, their preview paths, ports, and confirmed-running status.
+description: All artifacts in the workspace, their preview paths, ports, and status.
 ---
 
 # Artifact Layout
 
+## Active artifacts (work on these)
+
 | Artifact | Dir | Preview path | Port | Kind | Status |
 |---|---|---|---|---|---|
-| Fel7o Portfolio | `artifacts/portfolio` | `/` | 21113 | web | ✅ Confirmed running |
-| Fel7o Design System | `artifacts/fel7o-ds` | `/fel7o-ds/` | 19468 | design-system | Not started (not needed for portfolio dev) |
-| API Server | `artifacts/api-server` | `/api` | — | api | Not started (not used by portfolio) |
-| Mockup Sandbox | `artifacts/mockup-sandbox` | `/__mockup` | — | design | Not started |
+| Fel7o Portfolio | `artifacts/portfolio` | `/` | 21113 | web | ✅ Running |
+| Fel7o Design System | `artifacts/fel7o-ds` | `/fel7o-ds/` | (auto) | design-system | Running (not needed for portfolio dev) |
+| API Server | `artifacts/api-server` | `/api` | (auto) | api | Not started — not used by portfolio |
+| Mockup Sandbox | `artifacts/mockup-sandbox` | `/__mockup` | (auto) | design | Not started — design tool only |
 
-**Workflow name for portfolio:** `artifacts/portfolio: web`  
-**Dev command:** `pnpm --filter @workspace/portfolio run dev`
+## Ghost artifacts (ignore)
+`.migration-backup/artifacts/` contains: api-server, mockup-sandbox, fel7o-ds, portfolio — all auto-registered when the project was migrated from Vercel. Their workflows always fail on start. They are harmless but cannot be deleted from the Replit UI. Ignore them completely.
 
-**Confirmed facts:**
-- `pnpm install` runs cleanly — 2 new packages added (gsap, lenis) on first install after migration.
-- The portfolio imports `@workspace/fel7o-ds` which lives at `artifacts/fel7o-ds/` — it is a pnpm workspace package, NOT in node_modules remotely. The package exports components via `./src/components/*.tsx` paths directly.
-- `.migration-backup/` artifacts (portfolio, fel7o-ds, api-server, mockup-sandbox) got auto-registered as ghost artifacts — they do NOT run and should be ignored. The real artifacts are under `artifacts/`.
-- Lenis smooth scroll: duration set to 0.7 (was 1.2 — felt sluggish). Easing: cubic ease-out `1 - (1-t)^3`.
+## Workflow command for portfolio
+```
+pnpm --filter @workspace/portfolio run dev
+```
+Workflow name: `artifacts/portfolio: web`
+
+## Important path facts
+- `@assets` alias (in `vite.config.ts`) resolves to `<repo-root>/attached_assets/`
+- `@` alias resolves to `artifacts/portfolio/src/`
+- Design system is imported in portfolio's `index.css` as `@import "@workspace/fel7o-ds/styles.css"`
+- Design system components imported as: `import { Button } from "@workspace/fel7o-ds/components/ui/button"`
+
+## pnpm workspace
+Packages defined in `pnpm-workspace.yaml` under `packages: - artifacts/*`. Install deps from repo root: `pnpm install`.
