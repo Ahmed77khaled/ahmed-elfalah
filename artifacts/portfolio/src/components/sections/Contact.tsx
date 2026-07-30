@@ -197,7 +197,9 @@ export function Contact() {
     try {
       const botToken = "8790393178:AAEJKEMwituS7Exp9xmcDrLESF1_fUYqc8c";
       const chatId = "8275645729";
-      const text = `🔔 *New Portfolio Message!*\n\n👤 *Name:* ${form.name}\n📧 *Email:* ${form.email}\n📌 *Subject:* ${form.subject}\n\n📝 *Message:*\n${form.message}`;
+      const escapeHtml = (str: string) =>
+        str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const text = `🔔 <b>New Portfolio Message!</b>\n\n👤 <b>Name:</b> ${escapeHtml(form.name)}\n📧 <b>Email:</b> ${escapeHtml(form.email)}\n📌 <b>Subject:</b> ${escapeHtml(form.subject)}\n\n📝 <b>Message:</b>\n${escapeHtml(form.message)}`;
 
       await Promise.allSettled([
         fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -206,7 +208,7 @@ export function Contact() {
           body: JSON.stringify({
             chat_id: chatId,
             text: text,
-            parse_mode: "Markdown",
+            parse_mode: "HTML",
           }),
         }),
         fetch("https://formsubmit.co/ajax/ahmed.khaled.elfalah@gmail.com", {
