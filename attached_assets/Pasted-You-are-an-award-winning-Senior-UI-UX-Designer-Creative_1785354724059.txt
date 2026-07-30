@@ -1,0 +1,462 @@
+You are an award-winning Senior UI/UX Designer, Creative Director, and Senior Full-Stack Frontend Engineer.
+
+Your mission is to build a world-class personal portfolio website that looks better than 99% of developer portfolios on the internet.
+
+The owner is:
+
+Name:
+Youssef Zarad
+
+Brand:
+Fel7o
+
+Title:
+Software Engineer • Full Stack Developer • DevOps Enthusiast • AI Builder
+
+The website must feel like it was designed by Apple, Linear, Stripe, Vercel, Framer, and Awwwards-winning studios.
+
+====================================================
+DESIGN STYLE
+====================================================
+
+Use a premium futuristic dark theme.
+
+Primary Colors
+#00D4FF
+#7C3AED
+
+Background
+#050816
+
+Cards
+rgba(255,255,255,.05)
+
+Borders
+rgba(255,255,255,.08)
+
+Text
+#FFFFFF
+#B5BFD0
+
+Typography
+Inter
+
+Icons
+Lucide
+
+Rounded Corners
+24px
+
+Glassmorphism
+Backdrop Blur
+Soft Shadows
+
+Use elegant gradients.
+
+Everything should feel expensive.
+
+Absolutely NO template-looking design.
+
+====================================================
+TECH STACK
+====================================================
+
+React
+TypeScript
+Vite
+TailwindCSS
+Framer Motion
+GSAP
+Lenis Smooth Scroll
+
+Responsive
+
+SEO Optimized
+
+Fast Loading
+
+Component Architecture
+
+====================================================
+ANIMATIONS
+====================================================
+
+Ultra smooth.
+
+Parallax
+
+Mouse follower
+
+Glow effects
+
+Magnetic buttons
+
+Animated gradient backgrounds
+
+Blur blobs
+
+Floating particles
+
+Scroll reveal
+
+Stagger animations
+
+Page transitions
+
+Hover effects
+
+3D tilt cards
+
+Custom cursor
+
+Text reveal animations
+
+Image reveal animations
+
+Animated counters
+
+Timeline animations
+
+Smooth scrolling
+
+Everything should be premium.
+
+====================================================
+HOME HERO
+====================================================
+
+Huge hero section.
+
+Animated background.
+
+Professional portrait placeholder.
+
+Big heading
+
+"Hi, I'm Youssef."
+
+Second line
+
+"I Build Beautiful Software."
+
+Typing animation changing between
+
+Full Stack Developer
+
+AI Engineer
+
+DevOps Enthusiast
+
+Software Engineer
+
+Creative Builder
+
+CTA Buttons
+
+View Projects
+
+Download Resume
+
+Contact Me
+
+Social Icons
+
+GitHub
+
+LinkedIn
+
+Facebook
+
+Instagram
+
+Email
+
+====================================================
+ABOUT
+====================================================
+
+Timeline
+
+Who I am
+
+Journey
+
+Education
+
+Experience
+
+Goals
+
+Passion
+
+Values
+
+Use animated timeline.
+
+====================================================
+SKILLS
+====================================================
+
+Animated skill cards.
+
+Frontend
+
+React
+
+Next.js
+
+TypeScript
+
+Tailwind
+
+JavaScript
+
+Backend
+
+Node.js
+
+Express
+
+Python
+
+Databases
+
+SQLite
+
+PostgreSQL
+
+MongoDB
+
+DevOps
+
+Docker
+
+Linux
+
+Git
+
+GitHub
+
+NGINX
+
+Cloud
+
+AWS Basics
+
+AI
+
+OpenAI
+
+Prompt Engineering
+
+Automation
+
+Each skill has animated progress.
+
+====================================================
+PROJECTS
+====================================================
+
+Premium portfolio grid.
+
+Each project opens beautiful modal.
+
+Large image
+
+Description
+
+Features
+
+Tech Stack
+
+Live Demo
+
+GitHub
+
+Include these sample projects
+
+Fel7o Media Downloader
+
+Modern Download Manager
+
+AI Tools
+
+Automation Dashboard
+
+DevOps Dashboard
+
+Personal Portfolio
+
+Each card has
+
+Glow
+
+Tilt
+
+Hover
+
+Animated border
+
+====================================================
+SERVICES
+====================================================
+
+Web Development
+
+Desktop Apps
+
+Automation
+
+AI Integration
+
+UI Design
+
+Consulting
+
+====================================================
+EXPERIENCE
+====================================================
+
+Animated timeline.
+
+====================================================
+CERTIFICATES
+====================================================
+
+Beautiful certificate gallery.
+
+====================================================
+STATS
+====================================================
+
+Animated Counters
+
+Projects
+
+Happy Clients
+
+Years Learning
+
+Lines of Code
+
+Downloads
+
+====================================================
+TESTIMONIALS
+====================================================
+
+Glass cards
+
+Auto slider
+
+====================================================
+BLOG
+====================================================
+
+Latest Articles
+
+====================================================
+CONTACT
+====================================================
+
+Beautiful Contact Form
+
+Validation
+
+Animated Inputs
+
+Google Map Placeholder
+
+Email
+
+WhatsApp
+
+Location
+
+====================================================
+FOOTER
+====================================================
+
+Elegant footer.
+
+====================================================
+SPECIAL EFFECTS
+====================================================
+
+Loading screen
+
+Page Loader
+
+Scroll Progress Bar
+
+Custom Cursor
+
+Animated Background Grid
+
+Noise Texture
+
+Gradient Mesh
+
+Mouse Glow
+
+Floating Shapes
+
+Glass Effects
+
+Theme Toggle
+
+====================================================
+SEO
+====================================================
+
+Professional metadata.
+
+OpenGraph.
+
+Twitter Cards.
+
+Schema.org.
+
+Favicon.
+
+Manifest.
+
+robots.txt
+
+sitemap.xml
+
+====================================================
+CODE QUALITY
+====================================================
+
+Clean architecture.
+
+Reusable components.
+
+Accessibility.
+
+Responsive.
+
+Performance optimized.
+
+Lazy loading.
+
+Image optimization.
+
+Dark mode only.
+
+No placeholder lorem ipsum.
+
+Write realistic content.
+
+====================================================
+FINAL GOAL
+====================================================
+
+The final website should look like it belongs on Awwwards.com.
+
+It should immediately communicate premium quality, professionalism, creativity, and technical excellence.
+
+Do not create a basic portfolio.
+
+Create something unforgettable.
