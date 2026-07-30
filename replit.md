@@ -149,8 +149,7 @@ Usage in code: always use `hsl(var(--primary))` CSS variable form — never hard
 1. **`PORT` and `BASE_PATH` env vars are required.** `vite.config.ts` throws if either is missing. In Replit these are injected automatically; locally you must set them.
 2. **Push to GitHub needs a Personal Access Token.** The Replit Git UI has a bug. Use shell: `git push https://Ahmed77khaled:${GITHUB_TOKEN}@github.com/Ahmed77khaled/ahmed-elfalah.git main`. Store the token as a Replit Secret named `GITHUB_TOKEN`.
 3. **`.migration-backup/` artifacts are ghost entries.** They were auto-registered when the project was migrated. Their workflows fail on start — ignore them. The real artifacts are under `artifacts/`.
-4. **Do NOT add `cursor: auto` or `cursor: pointer` anywhere.** The custom cursor handles all pointer states.
-5. **Lenis duration is intentionally 0.7** (was 1.2 — felt too slow). Do not increase it without user approval.
+4. **Lenis duration is intentionally 0.7** (was 1.2 — felt too slow). Do not increase it without user approval.
 6. **`@workspace/fel7o-ds` must be in `devDependencies`**, not `dependencies`, in the portfolio's `package.json` (pnpm workspace local package convention).
 
 ---

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { LoadingScreen } from "@/components/effects/LoadingScreen";
-import { CustomCursor } from "@/components/effects/CustomCursor";
 import { ScrollProgress } from "@/components/effects/ScrollProgress";
 import { MouseGlow } from "@/components/effects/MouseGlow";
 import { AnimatedBackground } from "@/components/effects/AnimatedBackground";
@@ -65,7 +64,6 @@ export default function Home() {
 
       {!loading && (
         <>
-          <CustomCursor />
           <ScrollProgress />
           <MouseGlow />
         </>
