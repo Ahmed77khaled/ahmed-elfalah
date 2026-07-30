@@ -195,6 +195,13 @@ export function Contact() {
 
     setSubmitting(true);
     try {
+      // Save to database (fire-and-forget — don't block on failure)
+      fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      }).catch(() => {});
+
       const botToken = "8790393178:AAEJKEMwituS7Exp9xmcDrLESF1_fUYqc8c";
       const chatId = "8275645729";
       const escapeHtml = (str: string) =>

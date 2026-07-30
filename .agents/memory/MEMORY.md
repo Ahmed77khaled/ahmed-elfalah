@@ -4,3 +4,4 @@
 - [Photo integration](photo-integration.md) — Ahmed's photo is live in Hero; how to swap it
 - [GitHub push](github-push.md) — Replit Git UI is broken; use shell + GITHUB_TOKEN secret instead
 - [Scroll and loading](scroll-loading.md) — Lenis config, loading screen duration, key timing values
+- [Admin dashboard](admin-dashboard.md) — /admin CMS: auth, API routes, DB tables, frontend files, what's still hardcoded

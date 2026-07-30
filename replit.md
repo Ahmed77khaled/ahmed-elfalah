@@ -10,6 +10,12 @@ Personal portfolio website for **Ahmed El-Falah** — UI/UX Designer, Python Dev
 # Start the portfolio dev server (main artifact)
 pnpm --filter @workspace/portfolio run dev
 
+# Start the API server (admin backend)
+pnpm --filter @workspace/api-server run dev
+
+# Push DB schema changes
+cd lib/db && pnpm run push
+
 # Typecheck everything
 pnpm run typecheck
 
@@ -17,11 +23,10 @@ pnpm run typecheck
 pnpm run build
 ```
 
-**Workflow name:** `artifacts/portfolio: web`
-**Port:** assigned via `PORT` env var (21113 in dev)
-**Preview path:** `/` (root — the entire app is the portfolio)
+**Portfolio workflow:** `artifacts/portfolio: web` — port via `PORT` (21113 in dev), preview `/`
+**API Server workflow:** `artifacts/api-server: API Server` — port 8080 in dev, preview `/api`
 
-No backend, no database. Purely frontend.
+**Admin dashboard:** `/admin` — password-protected. Login at `/admin/login` with `ADMIN_PASSWORD` secret.
 
 ---
 
@@ -97,9 +102,26 @@ attached_assets/
 
 ---
 
+## Admin Dashboard
+
+| Route | Purpose |
+|---|---|
+| `/admin/login` | Password login (uses `ADMIN_PASSWORD` secret) |
+| `/admin/dashboard` | Stats overview + quick-add buttons |
+| `/admin/projects` | Full CRUD for portfolio projects |
+| `/admin/skills` | Full CRUD for skills (grouped by category) |
+| `/admin/experience` | Full CRUD for work experience |
+| `/admin/messages` | Inbox for contact form submissions |
+| `/admin/settings` | Email, phone, location, social links, resume URL |
+
+Auth: JWT signed with `SESSION_SECRET`, 7-day expiry, stored in `localStorage`.
+API base: `/api` — routed by Replit path proxy to `artifacts/api-server`.
+
+---
+
 ## Architecture Decisions
 
-- **No backend.** The portfolio is 100% static frontend. The `api-server` artifact exists in the workspace but is not imported or called by the portfolio. If contact form submissions are ever needed, add EmailJS or Resend directly from the client.
+- **Admin backend:** `artifacts/api-server` (Express 5) handles all `/api/admin/*` routes (JWT-protected) and `/api/messages` (public POST for contact form). JWT signed with `SESSION_SECRET`.
 - **Design system as local package.** `@workspace/fel7o-ds` is consumed via pnpm workspace protocol (`workspace:*`). It exports CSS variables (not Tailwind config). The portfolio's `index.css` starts with `@import "@workspace/fel7o-ds/styles.css"` — do NOT add a second Tailwind `@import` or a duplicate `:root` block.
 - **`@assets` alias points to repo root `attached_assets/`.** Any image dropped into `attached_assets/` can be imported as `import x from "@assets/filename.ext"` inside any portfolio component.
 - **Lenis smooth scroll is optional/graceful.** The import is dynamic (`await import(...)`) with a try/catch, so the portfolio works even if Lenis fails to load.

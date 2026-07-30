@@ -1,8 +1,25 @@
 import { Router, type IRouter } from "express";
-import healthRouter from "./health";
+import healthRouter from "./health.js";
+import authRouter from "./auth.js";
+import projectsRouter from "./projects.js";
+import skillsRouter from "./skills.js";
+import experienceRouter from "./experience.js";
+import messagesRouter from "./messages.js";
+import publicMessageRouter from "./public-message.js";
+import settingsRouter from "./settings.js";
+import statsRouter from "./stats.js";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use("/auth", authRouter);
+router.use("/admin/projects", projectsRouter);
+router.use("/admin/skills", skillsRouter);
+router.use("/admin/experience", experienceRouter);
+router.use("/admin/messages", messagesRouter);
+router.use("/admin/settings", settingsRouter);
+router.use("/admin/stats", statsRouter);
+// Public: contact form submission
+router.use("/messages", publicMessageRouter);
 
 export default router;
