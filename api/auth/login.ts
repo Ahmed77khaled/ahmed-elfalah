@@ -1,5 +1,5 @@
 import jwtPkg from "jsonwebtoken";
-import { createHash, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "crypto";
 
 const jwt = (jwtPkg as any).default || jwtPkg;
 
