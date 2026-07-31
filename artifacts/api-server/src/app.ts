@@ -1,13 +1,13 @@
-import express, { type Express, type NextFunction, type Request, type Response } from "express";
+import express, { type Application, type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import pinoHttp from "pino-http";
+import { pinoHttp } from "pino-http";
 import { env } from "./lib/env.js";
-import { logger } from "./lib/logger";
-import router from "./routes";
+import { logger } from "./lib/logger.js";
+import router from "./routes/index.js";
 
-const app: Express = express();
+const app: Application = express();
 
 if (env.nodeEnv === "production") app.set("trust proxy", 1);
 
@@ -61,10 +61,11 @@ app.use("/api/messages", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standa
 
 app.use("/api", router);
 app.use("/api", (_req, res) => res.status(404).json({ success: false, error: "Not found" }));
-app.use((error: Error & { type?: string; status?: number; statusCode?: number }, req: Request, res: Response, next: NextFunction) => {
-  if (res.headersSent) return next(error);
+app.use((error: Error & { type?: string; status?: number; statusCode?: number }, req: Request, res: Response, _next: NextFunction) => {
+  if (res.headersSent) return;
   const status = error.type === "entity.too.large" ? 413 : error.statusCode ?? error.status ?? 500;
-  logger.error({ err: error, requestId: req.id, status }, "Request failed");
+  const requestId = (req as Request & { id?: string }).id;
+  logger.error({ err: error, requestId, status }, "Request failed");
   const safeStatus = status >= 400 && status < 600 ? status : 500;
   const message = safeStatus === 413 ? "Request body too large" : safeStatus < 500 ? "Request rejected" : "Internal server error";
   res.status(safeStatus).json({ success: false, error: message });
