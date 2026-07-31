@@ -1,6 +1,6 @@
-export default function handler(req: any, res: any) {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer ")) {
+module.exports = function handler(req, res) {
+  const auth = req.headers.authorization || "";
+  if (!auth.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized" });
   }
   const token = auth.slice(7);
@@ -13,7 +13,7 @@ export default function handler(req: any, res: any) {
       }
     }
     return res.status(401).json({ error: "Token expired" });
-  } catch {
+  } catch (e) {
     return res.status(401).json({ error: "Invalid token" });
   }
-}
+};
