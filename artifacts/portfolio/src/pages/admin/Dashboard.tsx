@@ -13,14 +13,14 @@ interface Stats {
 }
 
 const STAT_CARDS = (s: Stats) => [
-  { label: "Projects", value: s.projects, icon: FolderKanban, href: "/admin/projects" },
-  { label: "Skills", value: s.skills, icon: Zap, href: "/admin/skills" },
-  { label: "Experience", value: s.experience, icon: Briefcase, href: "/admin/experience" },
+  { label: "Projects", value: s.projects, icon: FolderKanban, href: "/console/projects" },
+  { label: "Skills", value: s.skills, icon: Zap, href: "/console/skills" },
+  { label: "Experience", value: s.experience, icon: Briefcase, href: "/console/experience" },
   {
     label: "Messages",
     value: s.messages,
     icon: MessageSquare,
-    href: "/admin/messages",
+    href: "/console/messages",
     badge: s.unreadMessages > 0 ? s.unreadMessages : undefined,
   },
 ];
@@ -100,13 +100,13 @@ export default function AdminDashboard() {
           Quick Actions
         </h2>
         <div className="flex flex-wrap gap-3">
-          <Button onClick={() => navigate("/admin/projects?new=1")} size="sm">
+          <Button onClick={() => navigate("/console/projects?new=1")} size="sm">
             <Plus size={14} className="mr-1" /> Add Project
           </Button>
-          <Button onClick={() => navigate("/admin/skills?new=1")} variant="outline" size="sm">
+          <Button onClick={() => navigate("/console/skills?new=1")} variant="outline" size="sm">
             <Plus size={14} className="mr-1" /> Add Skill
           </Button>
-          <Button onClick={() => navigate("/admin/experience?new=1")} variant="outline" size="sm">
+          <Button onClick={() => navigate("/console/experience?new=1")} variant="outline" size="sm">
             <Plus size={14} className="mr-1" /> Add Experience
           </Button>
         </div>
