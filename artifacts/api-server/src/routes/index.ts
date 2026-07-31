@@ -1,14 +1,14 @@
 import { Router } from "express";
-import healthRouter from "./health.js";
-import authRouter from "./auth.js";
-import projectsRouter from "./projects.js";
-import skillsRouter from "./skills.js";
-import experienceRouter from "./experience.js";
-import messagesRouter from "./messages.js";
-import publicMessageRouter from "./public-message.js";
-import settingsRouter from "./settings.js";
-import statsRouter from "./stats.js";
-import publicCmsRouter from "./public-cms.js";
+import healthRouter from "./health";
+import authRouter from "./auth";
+import projectsRouter from "./projects";
+import skillsRouter from "./skills";
+import experienceRouter from "./experience";
+import messagesRouter from "./messages";
+import publicMessageRouter from "./public-message";
+import settingsRouter from "./settings";
+import statsRouter from "./stats";
+import publicCmsRouter from "./public-cms";
 
 const router = Router();
 
