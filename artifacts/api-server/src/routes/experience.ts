@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { insertExperienceSchema } from "@workspace/db";
+import { insertExperienceSchema } from "../../../../lib/db/src/index";
 import { requireAuth } from "../lib/auth.js";
 import { fail, ok } from "../lib/http.js";
 import { cmsService, NotFoundError } from "../services/cms.js";

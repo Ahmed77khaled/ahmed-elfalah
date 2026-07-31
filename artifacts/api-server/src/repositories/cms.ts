@@ -1,4 +1,4 @@
-import { db, experienceTable, messagesTable, projectsTable, skillsTable, and, asc, count, desc, eq } from "@workspace/db";
+import { db, experienceTable, messagesTable, projectsTable, skillsTable, and, asc, count, desc, eq } from "../../../../lib/db/src/index";
 
 export const cmsRepository = {
   projects: (publishedOnly = false) => db.select().from(projectsTable)
