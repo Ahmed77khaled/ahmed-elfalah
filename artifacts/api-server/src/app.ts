@@ -60,7 +60,7 @@ app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, stand
 app.use("/api/messages", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
 
 app.use("/api", router);
-app.use("/api", (_req: any, res: any) => res.status(404).json({ success: false, error: "Not found" }));
+app.use((_req: any, res: any) => res.status(404).json({ success: false, error: "Not found" }));
 app.use((error: any, req: any, res: any, _next: any) => {
   if (res.headersSent) return;
   const status = error.type === "entity.too.large" ? 413 : error.statusCode ?? error.status ?? 500;
