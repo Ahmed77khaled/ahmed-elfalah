@@ -14,6 +14,11 @@ function validateUrl(name: string, value: string, protocols: string[]): string {
   return value;
 }
 
+function optionalUrl(name: string, value: string | undefined, protocols: string[]): string {
+  if (!value) return "";
+  return validateUrl(name, value, protocols);
+}
+
 function parseCorsOrigins(value: string, production: boolean): string[] {
   const origins = value.split(",").map((origin) => origin.trim()).filter(Boolean);
   if (origins.length === 0) throw new Error("CORS_ORIGIN must contain at least one origin");
@@ -26,10 +31,10 @@ function parseCorsOrigins(value: string, production: boolean): string[] {
 }
 
 function loadEnvironment() {
-  const nodeEnv = required("NODE_ENV");
+  const nodeEnv = process.env.NODE_ENV?.trim() || "production";
   if (!allowedNodeEnvironments.has(nodeEnv)) throw new Error("NODE_ENV must be development, test, or production");
 
-  const databaseUrl = validateUrl("DATABASE_URL", required("DATABASE_URL"), ["postgres:", "postgresql:"]);
+  const databaseUrl = optionalUrl("DATABASE_URL", process.env.DATABASE_URL?.trim(), ["postgres:", "postgresql:"]);
   const sessionSecret = required("SESSION_SECRET");
   if (sessionSecret.length < 32) throw new Error("SESSION_SECRET must be at least 32 characters");
 
