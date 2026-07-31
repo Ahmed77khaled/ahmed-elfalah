@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import { createHash, timingSafeEqual } from "node:crypto";
-import { type Request, type Response, type NextFunction } from "express";
 import { env } from "./env.js";
 
 export function signToken(): string {
@@ -22,8 +21,8 @@ export function verifyAdminPassword(password: string): boolean {
   return timingSafeEqual(provided, expected);
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  const auth = req.headers.authorization;
+export function requireAuth(req: any, res: any, next: any): void {
+  const auth = req.headers?.authorization;
   if (!auth?.startsWith("Bearer ")) {
     res.status(401).json({ error: "Unauthorized" });
     return;
