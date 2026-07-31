@@ -12,7 +12,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) navigate("/admin/dashboard");
+    if (isAuthenticated()) navigate("/console/dashboard");
   }, [navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -22,7 +22,7 @@ export default function AdminLogin() {
     try {
       const { token } = await api.login(password);
       setToken(token);
-      navigate("/admin/dashboard");
+      navigate("/console/dashboard");
     } catch {
       setError("Invalid password. Try again.");
     } finally {
@@ -39,14 +39,14 @@ export default function AdminLogin() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl mx-auto mb-4"
+            className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl mx-auto mb-4 font-mono"
             style={{ background: "hsl(var(--primary))", color: "hsl(var(--background))" }}
           >
-            F
+            &gt;_
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Admin Access</h1>
+          <h1 className="text-2xl font-bold text-foreground">DevOps Console</h1>
           <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
-            Fel7o Portfolio Dashboard
+            Ahmed El-Falah Control Center
           </p>
         </div>
 

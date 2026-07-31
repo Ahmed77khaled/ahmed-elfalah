@@ -20,7 +20,7 @@ const queryClient = new QueryClient();
 
 function AdminRoot() {
   const [, navigate] = useLocation();
-  useEffect(() => { navigate('/admin/dashboard'); }, [navigate]);
+  useEffect(() => { navigate('/console/dashboard'); }, [navigate]);
   return null;
 }
 
@@ -31,38 +31,38 @@ function Router() {
       <Route path="/" component={Home} />
 
       {/* Admin: login (no auth) */}
-      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/console/login" component={AdminLogin} />
 
-      {/* Admin: redirect /admin → /admin/dashboard */}
-      <Route path="/admin" component={AdminRoot} />
+      {/* Admin: redirect /console → /console/dashboard */}
+      <Route path="/console" component={AdminRoot} />
 
       {/* Admin: protected pages */}
-      <Route path="/admin/dashboard">
+      <Route path="/console/dashboard">
         <ProtectedRoute>
           <AdminLayout><AdminDashboard /></AdminLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/projects">
+      <Route path="/console/projects">
         <ProtectedRoute>
           <AdminLayout><AdminProjects /></AdminLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/skills">
+      <Route path="/console/skills">
         <ProtectedRoute>
           <AdminLayout><AdminSkills /></AdminLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/experience">
+      <Route path="/console/experience">
         <ProtectedRoute>
           <AdminLayout><AdminExperience /></AdminLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/messages">
+      <Route path="/console/messages">
         <ProtectedRoute>
           <AdminLayout><AdminMessages /></AdminLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/settings">
+      <Route path="/console/settings">
         <ProtectedRoute>
           <AdminLayout><AdminSettings /></AdminLayout>
         </ProtectedRoute>

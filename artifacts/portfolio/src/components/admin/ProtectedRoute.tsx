@@ -7,7 +7,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      navigate("/admin/login");
+      navigate("/console/login");
     }
   }, [navigate]);
 

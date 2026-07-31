@@ -16,12 +16,12 @@ import { clearToken } from "@/lib/admin-api";
 import { cn } from "@workspace/fel7o-ds/lib/utils";
 
 const NAV = [
-  { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/admin/projects", icon: FolderKanban, label: "Projects" },
-  { href: "/admin/skills", icon: Zap, label: "Skills" },
-  { href: "/admin/experience", icon: Briefcase, label: "Experience" },
-  { href: "/admin/messages", icon: MessageSquare, label: "Messages" },
-  { href: "/admin/settings", icon: Settings, label: "Settings" },
+  { href: "/console/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/console/projects", icon: FolderKanban, label: "Projects" },
+  { href: "/console/skills", icon: Zap, label: "Skills" },
+  { href: "/console/experience", icon: Briefcase, label: "Experience" },
+  { href: "/console/messages", icon: MessageSquare, label: "Messages" },
+  { href: "/console/settings", icon: Settings, label: "Settings" },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -30,7 +30,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   function logout() {
     clearToken();
-    navigate("/admin/login");
+    navigate("/console/login");
   }
 
   const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
@@ -47,11 +47,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
           style={{ background: "hsl(var(--primary))", color: "hsl(var(--background))" }}
         >
-          F
+          &gt;_
         </div>
         <div>
-          <div className="text-sm font-bold text-foreground">Fel7o</div>
-          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Admin</div>
+          <div className="text-sm font-bold text-foreground">Ahmed El-Falah</div>
+          <div className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Console</div>
         </div>
         {mobile && (
           <button onClick={() => setOpen(false)} className="ml-auto text-muted-foreground hover:text-foreground">
