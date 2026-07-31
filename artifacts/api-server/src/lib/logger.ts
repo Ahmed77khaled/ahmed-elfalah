@@ -1,10 +1,8 @@
 import pino from "pino";
 import { env } from "./env.js";
 
-const isProduction = env.nodeEnv === "production";
-
 export const logger = pino({
-  level: env.logLevel,
+  level: env.logLevel || "info",
   redact: [
     "req.headers.authorization",
     "req.headers.cookie",
@@ -14,12 +12,4 @@ export const logger = pino({
     "req.body.accessToken",
     "req.body.refreshToken",
   ],
-  ...(isProduction
-    ? {}
-    : {
-        transport: {
-          target: "pino-pretty",
-          options: { colorize: true },
-        },
-      }),
 });

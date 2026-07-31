@@ -2,34 +2,36 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import { pinoHttp } from "pino-http";
+import pinoHttpModule from "pino-http";
 import { env } from "./lib/env.js";
 import { logger } from "./lib/logger.js";
 import router from "./routes/index.js";
 
+const pinoHttp = (pinoHttpModule as any).default || pinoHttpModule;
 const app = express();
 
 if (env.nodeEnv === "production") app.set("trust proxy", 1);
 
-app.use(
-  pinoHttp({
-    logger,
-    serializers: {
-      req(req: any) {
-        return {
-          id: req.id,
-          method: req.method,
-          url: req.url?.split("?")[0],
-        };
-      },
-      res(res: any) {
-        return {
-          statusCode: res.statusCode,
-        };
-      },
-    },
-  }),
-);
+try {
+  if (typeof pinoHttp === "function") {
+    app.use(
+      pinoHttp({
+        logger,
+        serializers: {
+          req(req: any) {
+            return { id: req.id, method: req.method, url: req.url?.split("?")[0] };
+          },
+          res(res: any) {
+            return { statusCode: res.statusCode };
+          },
+        },
+      }),
+    );
+  }
+} catch (e) {
+  logger.warn({ err: e }, "pino-http middleware init skipped");
+}
+
 app.disable("x-powered-by");
 app.use(helmet({
   contentSecurityPolicy: {
@@ -55,9 +57,14 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: "draft-8", legacyHeaders: false }));
-app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, standardHeaders: "draft-8", legacyHeaders: false }));
-app.use("/api/messages", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
+
+try {
+  app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 100, standardHeaders: "draft-8", legacyHeaders: false }));
+  app.use("/api/auth/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 5, standardHeaders: "draft-8", legacyHeaders: false }));
+  app.use("/api/messages", rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: "draft-8", legacyHeaders: false }));
+} catch (e) {
+  logger.warn({ err: e }, "rateLimit middleware init skipped");
+}
 
 app.use("/api", router);
 app.use((_req: any, res: any) => res.status(404).json({ success: false, error: "Not found" }));
