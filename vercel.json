@@ -4,10 +4,6 @@
   "outputDirectory": "artifacts/portfolio/dist/public",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api"
-    },
-    {
       "source": "/:path((?!api(?:/|$)).*)",
       "destination": "/index.html"
     }
