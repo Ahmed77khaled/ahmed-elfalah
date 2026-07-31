@@ -1,8 +1,10 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { Briefcase, Code2, Award, BookOpen } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
+import { api, type ExperienceRow } from "@/lib/admin-api";
 
+/* Legacy static experience content retained only as a non-executing design reference.
 const experiences = [
   {
     period: "Jan 2024 – Present",
@@ -71,9 +73,21 @@ const experiences = [
     tech: ["JavaScript", "Python", "HTML/CSS", "SQL", "Linux", "Git"],
     accent: "accent",
   },
-];
+]; */
 
-function ExperienceItem({ exp, index }: { exp: (typeof experiences)[0]; index: number }) {
+interface DisplayExperience {
+  period: string;
+  title: string;
+  company: string;
+  type: string;
+  icon: typeof Briefcase;
+  description: string;
+  achievements: string[];
+  tech: string[];
+  accent: string;
+}
+
+function ExperienceItem({ exp, index, hasNext }: { exp: DisplayExperience; index: number; hasNext: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
   const Icon = exp.icon;
@@ -90,7 +104,7 @@ function ExperienceItem({ exp, index }: { exp: (typeof experiences)[0]; index: n
       data-testid={`experience-item-${index}`}
     >
       {/* Connector line to next item */}
-      {index < experiences.length - 1 && (
+      {hasNext && (
         <div
           className="hidden md:block absolute left-1/2 -translate-x-1/2"
           style={{
@@ -193,6 +207,13 @@ function ExperienceItem({ exp, index }: { exp: (typeof experiences)[0]; index: n
 export function Experience() {
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
+  const [cmsExperience, setCmsExperience] = useState<ExperienceRow[]>([]);
+  useEffect(() => { const load=()=>{void api.getPublicExperience().then(setCmsExperience).catch(() => setCmsExperience([]));}; load(); window.addEventListener("cms-data-changed",load); return()=>window.removeEventListener("cms-data-changed",load); }, []);
+  const displayExperience = cmsExperience.map((item) => ({
+    period: `${item.startDate}${item.startDate && item.endDate ? " – " : ""}${item.currentPosition ? "Present" : item.endDate}`,
+    title: item.position, company: item.company, type: "Experience", icon: Briefcase,
+    description: item.description, achievements: [] as string[], tech: [] as string[], accent: "primary",
+  }));
 
   return (
     <section id="experience" className="relative py-24 md:py-32" data-testid="experience-section">
@@ -222,8 +243,8 @@ export function Experience() {
 
         {/* Timeline */}
         <div className="flex flex-col gap-12">
-          {experiences.map((exp, i) => (
-            <ExperienceItem key={exp.title} exp={exp} index={i} />
+          {displayExperience.map((exp, i) => (
+            <ExperienceItem key={exp.title} exp={exp} index={i} hasNext={i < displayExperience.length - 1} />
           ))}
         </div>
       </div>

@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { ExternalLink, Github, X, Check } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@workspace/fel7o-ds/components/ui/dialog";
+import { api, type ProjectRow } from "@/lib/admin-api";
 
 interface Project {
   id: string;
@@ -18,6 +19,7 @@ interface Project {
   githubUrl: string;
 }
 
+/* Legacy static project content retained only as a non-executing design reference.
 const projects: Project[] = [
   {
     id: "media-downloader",
@@ -119,7 +121,7 @@ const projects: Project[] = [
     demoUrl: "/",
     githubUrl: "https://github.com",
   },
-];
+]; */
 
 function use3DTilt() {
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -335,8 +337,16 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
 
 export function Projects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [cmsProjects, setCmsProjects] = useState<ProjectRow[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
+  useEffect(() => { const load=()=>{void api.getPublicProjects().then(setCmsProjects).catch(() => setCmsProjects([]));}; load(); window.addEventListener("cms-data-changed",load); return()=>window.removeEventListener("cms-data-changed",load); }, []);
+  const displayProjects: Project[] = cmsProjects.map((project) => ({
+    id: String(project.id), title: project.title, tagline: project.subtitle || project.shortDescription,
+    description: project.longDescription || project.shortDescription, features: project.features,
+    tech: project.techStack, category: project.category, gradient: "linear-gradient(135deg, hsl(190 100% 50% / 0.15), hsl(262 83% 57% / 0.1))",
+    demoUrl: project.demoUrl || "#", githubUrl: project.githubUrl || "#",
+  }));
 
   return (
     <section id="projects" className="relative py-24 md:py-32" data-testid="projects-section">
@@ -366,7 +376,7 @@ export function Projects() {
 
         {/* Project grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, i) => (
+          {displayProjects.map((project, i) => (
             <ProjectCard
               key={project.id}
               project={project}

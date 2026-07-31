@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearch } from "wouter";
 import { Mail, Trash2, Circle } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { api, type MessageRow } from "@/lib/admin-api";
@@ -10,13 +11,20 @@ function formatDate(iso: string) {
 }
 
 export default function AdminMessages() {
+  const search = useSearch();
+  const openId = Number(new URLSearchParams(search).get("open"));
   const [messages, setMessages] = useState<MessageRow[]>([]);
   const [selected, setSelected] = useState<MessageRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   async function load() {
     setLoading(true);
-    try { setMessages(await api.getMessages()); } finally { setLoading(false); }
+    try {
+      const rows = await api.getMessages();
+      setMessages(rows);
+      if (Number.isSafeInteger(openId) && openId > 0) setSelected(rows.find((message) => message.id === openId) ?? null);
+    } catch { setError("Failed to load messages."); } finally { setLoading(false); }
   }
 
   useEffect(() => { load(); }, []);
@@ -43,6 +51,8 @@ export default function AdminMessages() {
           Contact form submissions from your portfolio
         </p>
       </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
         <div className="space-y-3">

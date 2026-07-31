@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Lock } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
-import { api, setToken, isAuthenticated } from "@/lib/admin-api";
+import { api, setToken, validateSession } from "@/lib/admin-api";
 import { useEffect } from "react";
 
 export default function AdminLogin() {
@@ -12,7 +12,9 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated()) navigate("/console/dashboard");
+    void validateSession().then((valid) => {
+      if (valid) navigate("/console/dashboard");
+    });
   }, [navigate]);
 
   async function handleSubmit(e: React.FormEvent) {

@@ -159,16 +159,22 @@ function ProjectForm({
 export default function AdminProjects() {
   const search = useSearch();
   const openNew = new URLSearchParams(search).get("new") === "1";
+  const editId = Number(new URLSearchParams(search).get("edit"));
 
   const [projects, setProjects] = useState<ProjectRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [creating, setCreating] = useState(openNew);
   const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
-    try { setProjects(await api.getProjects()); } finally { setLoading(false); }
+    try {
+      const rows = await api.getProjects();
+      setProjects(rows);
+      if (Number.isSafeInteger(editId) && editId > 0) setEditing(rows.find((project) => project.id === editId) ?? null);
+    } catch { setError("Failed to load projects."); } finally { setLoading(false); }
   }
   useEffect(() => { load(); }, []);
 
@@ -219,6 +225,8 @@ export default function AdminProjects() {
       {creating && (
         <ProjectForm initial={EMPTY} onSave={handleCreate} onCancel={() => setCreating(false)} saving={saving} />
       )}
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
         <div className="space-y-3">

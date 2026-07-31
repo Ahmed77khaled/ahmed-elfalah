@@ -1,29 +1,9 @@
 import { Router } from "express";
-import { db, messagesTable } from "@workspace/db";
-import { eq, desc } from "drizzle-orm";
 import { requireAuth } from "../lib/auth.js";
-
-const router = Router();
-
-// Admin: list all messages
-router.get("/", requireAuth, async (_req, res) => {
-  const rows = await db.select().from(messagesTable).orderBy(desc(messagesTable.createdAt));
-  res.json(rows);
-});
-
-// Admin: mark as read
-router.put("/:id/read", requireAuth, async (req, res) => {
-  const id = Number(req.params.id);
-  const [row] = await db.update(messagesTable).set({ read: true }).where(eq(messagesTable.id, id)).returning();
-  if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(row);
-});
-
-// Admin: delete message
-router.delete("/:id", requireAuth, async (req, res) => {
-  const id = Number(req.params.id);
-  await db.delete(messagesTable).where(eq(messagesTable.id, id));
-  res.json({ ok: true });
-});
-
+import { fail, ok } from "../lib/http.js";
+import { cmsService, NotFoundError } from "../services/cms.js";
+const router=Router(); const id=(v:string)=>Number.isSafeInteger(Number(v))?Number(v):null; const run=(h:(req:any,res:any)=>Promise<void>)=>(req:any,res:any)=>h(req,res).catch((e)=>fail(res,e,e instanceof NotFoundError?404:500));
+router.get("/",requireAuth,run(async(_req,res)=>{ok(res,await cmsService.getMessages());}));
+router.put("/:id/read",requireAuth,run(async(req,res)=>{const messageId=id(req.params.id);if(messageId===null)return void fail(res,"Invalid message id",400);ok(res,await cmsService.markMessageRead(messageId));}));
+router.delete("/:id",requireAuth,run(async(req,res)=>{const messageId=id(req.params.id);if(messageId===null)return void fail(res,"Invalid message id",400);await cmsService.deleteMessage(messageId);ok(res,{id:messageId});}));
 export default router;

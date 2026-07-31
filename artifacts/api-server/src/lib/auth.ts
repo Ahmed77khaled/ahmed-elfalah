@@ -1,19 +1,25 @@
 import jwt from "jsonwebtoken";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { type Request, type Response, type NextFunction } from "express";
-
-const SECRET = process.env.SESSION_SECRET ?? "dev-secret";
+import { env } from "./env.js";
 
 export function signToken(): string {
-  return jwt.sign({ role: "admin" }, SECRET, { expiresIn: "7d" });
+  return jwt.sign({ role: "admin" }, env.sessionSecret, { expiresIn: "7d" });
 }
 
 export function verifyToken(token: string): boolean {
   try {
-    jwt.verify(token, SECRET);
+    jwt.verify(token, env.sessionSecret);
     return true;
   } catch {
     return false;
   }
+}
+
+export function verifyAdminPassword(password: string): boolean {
+  const provided = createHash("sha256").update(password).digest();
+  const expected = createHash("sha256").update(env.adminPassword).digest();
+  return timingSafeEqual(provided, expected);
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {

@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
+import { api, type SkillRow } from "@/lib/admin-api";
 
 interface Skill {
   name: string;
@@ -12,6 +13,7 @@ interface SkillCategory {
   skills: Skill[];
 }
 
+/* Legacy static skill content retained only as a non-executing design reference.
 const skillCategories: SkillCategory[] = [
   {
     title: "Design & UX",
@@ -70,7 +72,7 @@ const skillCategories: SkillCategory[] = [
       { name: "Huawei Security", level: 25 },
     ],
   },
-];
+]; */
 
 function SkillBar({ skill, inView }: { skill: Skill; inView: boolean }) {
   const [width, setWidth] = useState(0);
@@ -146,6 +148,13 @@ function CategoryCard({ cat, delay }: { cat: SkillCategory; delay: number }) {
 export function Skills() {
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
+  const [cmsSkills, setCmsSkills] = useState<SkillRow[]>([]);
+  useEffect(() => { const load=()=>{void api.getPublicSkills().then(setCmsSkills).catch(() => setCmsSkills([]));}; load(); window.addEventListener("cms-data-changed",load); return()=>window.removeEventListener("cms-data-changed",load); }, []);
+  const displayCategories = Object.entries(cmsSkills.reduce<Record<string, Skill[]>>((groups, skill) => {
+    const category = skill.category || "Skills";
+    (groups[category] ??= []).push({ name: skill.name, level: skill.percentage });
+    return groups;
+  }, {})).map(([title, skills]) => ({ title, icon: title.slice(0, 3).toUpperCase(), skills }));
 
   return (
     <section id="skills" className="relative py-24 md:py-32" data-testid="skills-section">
@@ -182,7 +191,7 @@ export function Skills() {
 
         {/* Skill grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skillCategories.map((cat, i) => (
+          {displayCategories.map((cat, i) => (
             <CategoryCard key={cat.title} cat={cat} delay={i * 0.1} />
           ))}
         </div>

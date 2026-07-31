@@ -8,6 +8,7 @@ import messagesRouter from "./messages.js";
 import publicMessageRouter from "./public-message.js";
 import settingsRouter from "./settings.js";
 import statsRouter from "./stats.js";
+import publicCmsRouter from "./public-cms.js";
 
 const router: IRouter = Router();
 
@@ -19,6 +20,7 @@ router.use("/admin/experience", experienceRouter);
 router.use("/admin/messages", messagesRouter);
 router.use("/admin/settings", settingsRouter);
 router.use("/admin/stats", statsRouter);
+router.use(publicCmsRouter);
 // Public: contact form submission
 router.use("/messages", publicMessageRouter);
 

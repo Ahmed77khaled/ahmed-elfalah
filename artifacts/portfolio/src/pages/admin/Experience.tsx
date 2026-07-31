@@ -83,13 +83,14 @@ export default function AdminExperience() {
 
   const [items, setItems] = useState<ExperienceRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [editing, setEditing] = useState<ExperienceRow | null>(null);
   const [creating, setCreating] = useState(openNew);
   const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
-    try { setItems(await api.getExperience()); } finally { setLoading(false); }
+    try { setItems(await api.getExperience()); } catch { setError("Failed to load experience."); } finally { setLoading(false); }
   }
   useEffect(() => { load(); }, []);
 
@@ -136,6 +137,8 @@ export default function AdminExperience() {
       </div>
 
       {creating && <ExpForm initial={EMPTY} onSave={handleCreate} onCancel={() => setCreating(false)} saving={saving} />}
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
         <div className="space-y-3">{[1,2,3].map((i) => <div key={i} className="rounded-xl animate-pulse" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", height: "88px" }} />)}</div>

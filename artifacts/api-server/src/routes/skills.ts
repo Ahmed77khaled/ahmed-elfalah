@@ -1,35 +1,12 @@
 import { Router } from "express";
-import { db, skillsTable, insertSkillSchema } from "@workspace/db";
-import { eq, asc } from "drizzle-orm";
+import { insertSkillSchema } from "@workspace/db";
 import { requireAuth } from "../lib/auth.js";
-
-const router = Router();
-
-router.get("/", requireAuth, async (_req, res) => {
-  const rows = await db.select().from(skillsTable).orderBy(asc(skillsTable.displayOrder), asc(skillsTable.id));
-  res.json(rows);
-});
-
-router.post("/", requireAuth, async (req, res) => {
-  const parsed = insertSkillSchema.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
-  const [row] = await db.insert(skillsTable).values(parsed.data).returning();
-  res.status(201).json(row);
-});
-
-router.put("/:id", requireAuth, async (req, res) => {
-  const id = Number(req.params.id);
-  const parsed = insertSkillSchema.partial().safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
-  const [row] = await db.update(skillsTable).set(parsed.data).where(eq(skillsTable.id, id)).returning();
-  if (!row) { res.status(404).json({ error: "Not found" }); return; }
-  res.json(row);
-});
-
-router.delete("/:id", requireAuth, async (req, res) => {
-  const id = Number(req.params.id);
-  await db.delete(skillsTable).where(eq(skillsTable.id, id));
-  res.json({ ok: true });
-});
-
+import { fail, ok } from "../lib/http.js";
+import { cmsService, NotFoundError } from "../services/cms.js";
+const router = Router(); const id = (v: string) => Number.isSafeInteger(Number(v)) ? Number(v) : null;
+const run = (handler: (req: any, res: any) => Promise<void>) => (req: any, res: any) => handler(req, res).catch((e) => fail(res, e, e instanceof NotFoundError ? 404 : 500));
+router.get("/", requireAuth, run(async (_req, res) => { ok(res, await cmsService.getSkills()); }));
+router.post("/", requireAuth, run(async (req,res) => { const parsed=insertSkillSchema.safeParse(req.body); if(!parsed.success)return void fail(res,"Invalid skill",400); ok(res,await cmsService.createSkill(parsed.data),201); }));
+router.put("/:id", requireAuth, run(async(req,res)=>{ const skillId=id(req.params.id); if(skillId===null)return void fail(res,"Invalid skill id",400); const parsed=insertSkillSchema.partial().safeParse(req.body); if(!parsed.success)return void fail(res,"Invalid skill",400); ok(res,await cmsService.updateSkill(skillId,parsed.data)); }));
+router.delete("/:id", requireAuth, run(async(req,res)=>{ const skillId=id(req.params.id); if(skillId===null)return void fail(res,"Invalid skill id",400); await cmsService.deleteSkill(skillId); ok(res,{id:skillId}); }));
 export default router;

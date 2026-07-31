@@ -64,13 +64,14 @@ export default function AdminSkills() {
 
   const [skills, setSkills] = useState<SkillRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [editing, setEditing] = useState<SkillRow | null>(null);
   const [creating, setCreating] = useState(openNew);
   const [saving, setSaving] = useState(false);
 
   async function load() {
     setLoading(true);
-    try { setSkills(await api.getSkills()); } finally { setLoading(false); }
+    try { setSkills(await api.getSkills()); } catch { setError("Failed to load skills."); } finally { setLoading(false); }
   }
   useEffect(() => { load(); }, []);
 
@@ -129,6 +130,8 @@ export default function AdminSkills() {
       </div>
 
       {creating && <SkillForm initial={EMPTY} onSave={handleCreate} onCancel={() => setCreating(false)} saving={saving} />}
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {loading ? (
         <div className="space-y-2">{[1,2,3,4].map((i) => <div key={i} className="rounded-xl animate-pulse" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", height: "60px" }} />)}</div>

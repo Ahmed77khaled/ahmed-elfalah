@@ -195,46 +195,22 @@ export function Contact() {
 
     setSubmitting(true);
     try {
-      // Save to database (fire-and-forget — don't block on failure)
-      fetch("/api/messages", {
+      // Save to the CMS before reporting a successful submission.
+      const response = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
-      }).catch(() => {});
+      });
+      if (!response.ok) throw new Error("Unable to save message");
 
-      const botToken = "8790393178:AAEJKEMwituS7Exp9xmcDrLESF1_fUYqc8c";
-      const chatId = "8275645729";
-      const escapeHtml = (str: string) =>
-        str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      const text = `🔔 <b>New Portfolio Message!</b>\n\n👤 <b>Name:</b> ${escapeHtml(form.name)}\n📧 <b>Email:</b> ${escapeHtml(form.email)}\n📌 <b>Subject:</b> ${escapeHtml(form.subject)}\n\n📝 <b>Message:</b>\n${escapeHtml(form.message)}`;
-
-      await Promise.allSettled([
-        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: text,
-            parse_mode: "HTML",
-          }),
-        }),
-        fetch("https://formsubmit.co/ajax/ahmed.khaled.elfalah@gmail.com", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            _subject: `New Portfolio Message: ${form.subject}`,
-            message: form.message,
-            _captcha: "false"
-          }),
-        })
-      ]);
     } catch {
-      // Ignore network errors
+      toast({
+        title: "Message was not sent",
+        description: "Please try again shortly.",
+        variant: "destructive",
+      });
+      setSubmitting(false);
+      return;
     }
     setSubmitting(false);
     setSubmitted(true);
