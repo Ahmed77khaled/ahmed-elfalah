@@ -91,8 +91,8 @@ function signJwt(payload, secret) {
 
 export default function handler(req, res) {
   try {
-    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    const pathname = url.pathname.replace(/\/$/, "");
+    const rawUrl = req.headers["x-forwarded-uri"] || req.headers["x-matched-path"] || req.url || "";
+    const pathname = rawUrl.split("?")[0].replace(/\/$/, "");
 
     if (pathname === "/api/auth/login") {
       if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -202,7 +202,7 @@ export default function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, data: {} });
+    return res.status(404).json({ error: `Route not found: ${pathname} (raw: ${rawUrl})` });
   } catch (err) {
     return res.status(500).json({ success: false, error: err ? err.message : "Server error" });
   }
