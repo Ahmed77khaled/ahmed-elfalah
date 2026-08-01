@@ -32,12 +32,19 @@ function Router() {
 
       {/* Admin: login (no auth) */}
       <Route path="/console/login" component={AdminLogin} />
+      <Route path="/admin/login" component={AdminLogin} />
 
-      {/* Admin: redirect /console → /console/dashboard */}
+      {/* Admin: redirect /console and /admin → /console/dashboard */}
       <Route path="/console" component={AdminRoot} />
+      <Route path="/admin" component={AdminRoot} />
 
       {/* Admin: protected pages */}
       <Route path="/console/dashboard">
+        <ProtectedRoute>
+          <AdminLayout><AdminDashboard /></AdminLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin/dashboard">
         <ProtectedRoute>
           <AdminLayout><AdminDashboard /></AdminLayout>
         </ProtectedRoute>
