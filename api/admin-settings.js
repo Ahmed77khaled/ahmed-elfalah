@@ -1,3 +1,5 @@
+import process from "node:process";
+
 const sampleSettings = {
   siteTitle: "Ahmed El-Falah | Portfolio",
   adminEmail: "ahmed@example.com",

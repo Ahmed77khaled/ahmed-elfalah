@@ -1,3 +1,5 @@
+import process from "node:process";
+
 export default function handler(req, res) {
   const auth = req.headers.authorization || "";
   const token = auth.replace("Bearer ", "").trim();
