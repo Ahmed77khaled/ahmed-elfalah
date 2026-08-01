@@ -1,4 +1,4 @@
-import process from "node:process";
+import crypto from "node:crypto";
 
 export default function handler(req, res) {
   const auth = req.headers.authorization || "";

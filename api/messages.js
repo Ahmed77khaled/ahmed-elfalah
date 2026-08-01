@@ -1,4 +1,4 @@
-import process from "node:process";
+import crypto from "node:crypto";
 
 export default function handler(req, res) {
   if (req.method === "POST") {

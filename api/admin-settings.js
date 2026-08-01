@@ -1,4 +1,4 @@
-import process from "node:process";
+import crypto from "node:crypto";
 
 const sampleSettings = {
   siteTitle: "Ahmed El-Falah | Portfolio",

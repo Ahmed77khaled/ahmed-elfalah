@@ -1,4 +1,4 @@
-import process from "node:process";
+import crypto from "node:crypto";
 
 const sampleSkills = [
   { id: 1, name: "Python", icon: "code", percentage: 90, category: "Backend", visible: true, displayOrder: 1 },
