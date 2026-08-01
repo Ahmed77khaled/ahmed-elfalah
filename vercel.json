@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "pnpm --filter @workspace/portfolio run build",
+  "outputDirectory": "artifacts/portfolio/dist",
   "rewrites": [
     {
       "source": "/:path((?!api(?:/|$)).*)",
