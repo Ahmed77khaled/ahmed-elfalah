@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { ExternalLink, Github, X, Check } from "lucide-react";
+import { ExternalLink, Github, X, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@workspace/fel7o-ds/components/ui/dialog";
@@ -18,6 +18,7 @@ interface Project {
   demoUrl: string;
   githubUrl: string;
   coverImage?: string;
+  galleryImages?: string[];
 }
 
 /* Legacy static project content retained only as a non-executing design reference.
@@ -146,7 +147,29 @@ function use3DTilt() {
 }
 
 function ProjectModal({ project, open, onClose }: { project: Project | null; open: boolean; onClose: () => void }) {
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveImgIndex(0);
+  }, [project?.id]);
+
   if (!project) return null;
+
+  const allImages = [project.coverImage, ...(project.galleryImages || [])].filter((url): url is string => Boolean(url && url.trim()));
+
+  const nextImg = () => {
+    if (allImages.length > 0) {
+      setActiveImgIndex((prev) => (prev + 1) % allImages.length);
+    }
+  };
+
+  const prevImg = () => {
+    if (allImages.length > 0) {
+      setActiveImgIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+    }
+  };
+
+  const currentImg = allImages[activeImgIndex] || allImages[0];
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -170,20 +193,21 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
           data-lenis-prevent
           style={{ overscrollBehavior: "contain" }}
         >
-          {/* Hero image placeholder */}
+          {/* Image Gallery Slider / Cover */}
           <div
-            className="rounded-xl w-full overflow-hidden mb-6 flex items-center justify-center relative"
+            className="rounded-xl w-full overflow-hidden mb-6 flex items-center justify-center relative group"
             style={{
-              height: "200px",
+              height: "260px",
               background: project.gradient,
               border: "1px solid hsl(var(--border))",
             }}
           >
-            {project.coverImage ? (
+            {currentImg ? (
               <img
-                src={project.coverImage}
-                alt={project.title}
-                className="w-full h-full object-cover"
+                key={currentImg}
+                src={currentImg}
+                alt={`${project.title} - ${activeImgIndex + 1}`}
+                className="w-full h-full object-cover transition-all duration-300"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
@@ -195,6 +219,48 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               >
                 {project.title.slice(0, 3).toUpperCase()}
               </div>
+            )}
+
+            {/* Navigation Arrows if multiple images */}
+            {allImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={prevImg}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border border-white/20 backdrop-blur-sm z-10"
+                  aria-label="Previous Image"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  type="button"
+                  onClick={nextImg}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border border-white/20 backdrop-blur-sm z-10"
+                  aria-label="Next Image"
+                >
+                  <ChevronRight size={18} />
+                </button>
+
+                {/* Counter indicator */}
+                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-medium border border-white/20 backdrop-blur-sm z-10">
+                  {activeImgIndex + 1} / {allImages.length}
+                </div>
+
+                {/* Navigation Dots */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 border border-white/20 backdrop-blur-sm z-10">
+                  {allImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setActiveImgIndex(idx)}
+                      className={`h-2 rounded-full transition-all ${
+                        idx === activeImgIndex ? "w-6 bg-primary" : "w-2 bg-white/50 hover:bg-white"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
  

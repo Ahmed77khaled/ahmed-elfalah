@@ -140,6 +140,10 @@ function ProjectForm({
         </Field>
       </div>
 
+      <Field label="Additional Gallery Images (Enter to add image URL)">
+        <TagInput value={form.galleryImages} onChange={(v) => set("galleryImages", v)} placeholder="Paste image URL and press Enter" />
+      </Field>
+
       <div className="flex items-center gap-2">
         <input type="checkbox" id="featured" checked={form.featured}
           onChange={(e) => set("featured", e.target.checked)} className="rounded" />
