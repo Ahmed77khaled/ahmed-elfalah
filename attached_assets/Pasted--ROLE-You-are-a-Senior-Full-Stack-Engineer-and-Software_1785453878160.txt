@@ -1,0 +1,347 @@
+# ROLE
+
+You are a Senior Full Stack Engineer and Software Architect.
+
+You are working on an EXISTING portfolio project.
+
+IMPORTANT:
+This is NOT a new project.
+Do NOT recreate anything.
+Do NOT redesign anything.
+Do NOT replace any existing components.
+
+First, analyze the entire codebase before writing any code.
+
+Understand:
+
+- Folder structure
+- Component architecture
+- Routing
+- State management
+- Existing animations
+- Existing design system
+- Theme
+- Database
+- APIs
+- Assets
+- Styling
+- Existing reusable components
+
+Reuse everything that already exists.
+
+------------------------------------------------
+
+# PRIMARY GOAL
+
+Add a secure Admin Dashboard (/admin) that integrates naturally into the current project.
+
+The public portfolio must remain 100% identical.
+
+Visitors should not notice any visual changes.
+
+Only authenticated users can access /admin.
+
+------------------------------------------------
+
+# BEFORE CODING
+
+Inspect the existing project.
+
+Identify:
+
+- Hero Component
+- About Component
+- Skills Component
+- Projects Component
+- Services Component
+- Experience Component
+- Testimonials
+- Contact
+- Footer
+
+Understand how each section currently gets its data.
+
+If the data is hardcoded, gradually migrate it into editable content without breaking the UI.
+
+Do NOT rewrite components if they can simply receive dynamic data.
+
+------------------------------------------------
+
+# DESIGN RULES
+
+Reuse the current design system.
+
+Reuse:
+
+Existing colors
+
+Existing typography
+
+Existing spacing
+
+Existing shadows
+
+Existing cards
+
+Existing buttons
+
+Existing animations
+
+Existing icons
+
+Existing transitions
+
+The Admin Dashboard must look like it belongs to this portfolio.
+
+Do not use generic admin templates.
+
+------------------------------------------------
+
+# CREATE
+
+/admin
+
+Protected route.
+
+Login required.
+
+------------------------------------------------
+
+# SIDEBAR
+
+Dashboard
+
+Portfolio Content
+
+Projects
+
+Skills
+
+Experience
+
+Messages
+
+Settings
+
+Logout
+
+Keep the sidebar minimal.
+
+------------------------------------------------
+
+# DASHBOARD
+
+Simple overview:
+
+Projects count
+
+Skills count
+
+Experience count
+
+Messages count
+
+Last update
+
+Quick buttons
+
++ Add Project
+
++ Add Skill
+
+------------------------------------------------
+
+# PORTFOLIO CONTENT
+
+Allow editing only the content that actually changes.
+
+Editable:
+
+Hero
+
+- Name
+- Title
+- Description
+- Resume
+- Social Links
+- Hero Image
+
+About
+
+- Story
+- Paragraphs
+- Statistics
+- Image
+
+Do NOT make section titles editable unless necessary.
+
+------------------------------------------------
+
+# PROJECTS
+
+This is the main feature.
+
+Each project should support:
+
+Title
+
+Subtitle
+
+Short Description
+
+Long Description
+
+Cover Image
+
+Gallery Images
+
+GitHub URL
+
+Live Demo URL
+
+Tech Stack
+
+Features List
+
+Status
+
+Featured
+
+Display Order
+
+The project editor should be clean and easy to use.
+
+------------------------------------------------
+
+# SKILLS
+
+CRUD
+
+Skill Name
+
+Icon
+
+Percentage
+
+Category
+
+Visible
+
+Display Order
+
+------------------------------------------------
+
+# EXPERIENCE
+
+CRUD
+
+Company
+
+Position
+
+Description
+
+Start Date
+
+End Date
+
+Current Position
+
+Company Logo
+
+------------------------------------------------
+
+# CONTACT
+
+If the existing contact form already stores messages,
+create an Inbox page.
+
+If it doesn't,
+keep the current functionality unchanged.
+
+------------------------------------------------
+
+# SETTINGS
+
+Resume Upload
+
+Email
+
+Phone
+
+Location
+
+Social Links
+
+------------------------------------------------
+
+# UX
+
+Keep everything extremely simple.
+
+This CMS is for one person only.
+
+Avoid enterprise features.
+
+No Roles
+
+No Permissions
+
+No Teams
+
+No Analytics
+
+No Version History
+
+No Media Library
+
+No Complex SEO
+
+No Workflow
+
+No Notifications Center
+
+No unnecessary pages.
+
+------------------------------------------------
+
+# DATABASE
+
+Only create tables that are actually needed.
+
+Projects
+
+Skills
+
+Experience
+
+Settings
+
+Messages (if needed)
+
+------------------------------------------------
+
+# CODING RULES
+
+Do not duplicate components.
+
+Reuse existing components whenever possible.
+
+Keep the project architecture clean.
+
+Write maintainable code.
+
+Follow the existing coding style.
+
+------------------------------------------------
+
+# MOST IMPORTANT RULE
+
+Before creating anything new,
+always check whether the project already contains something reusable.
+
+Never replace existing UI.
+
+Extend the current project instead of rebuilding it.
+
+The final result should feel like the Admin Dashboard was part of the project from day one.

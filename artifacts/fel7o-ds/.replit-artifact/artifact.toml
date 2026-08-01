@@ -1,0 +1,18 @@
+kind = "design-system"
+previewPath = "/fel7o-ds/"
+title = "Fel7o Design System"
+version = "1.0.0"
+id = "artifacts/fel7o-ds"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/fel7o-ds/" ]
+localPort = 19468
+
+[services.development]
+run = "pnpm --filter @workspace/fel7o-ds run dev"
+
+[services.env]
+PORT = "19468"
+BASE_PATH = "/fel7o-ds/"
