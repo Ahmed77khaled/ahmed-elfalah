@@ -1,18 +1,18 @@
 import crypto from "node:crypto";
 
-const sampleMessages = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    subject: "Collaboration Opportunity",
-    message: "Hello Ahmed, I liked your DevOps and Web development portfolio!",
-    read: false,
-    createdAt: new Date().toISOString()
-  }
-];
-
 export default function handler(req, res) {
+  const sampleMessages = [
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john@example.com",
+      subject: "Collaboration Opportunity",
+      message: "Hello Ahmed, I liked your DevOps and Web development portfolio!",
+      read: false,
+      createdAt: new Date().toISOString()
+    }
+  ];
+
   if (req.method === "GET") {
     return res.status(200).json({ success: true, data: sampleMessages });
   }
