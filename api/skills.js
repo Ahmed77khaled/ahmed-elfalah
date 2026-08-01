@@ -1,6 +1,10 @@
-import store from "./_store.js";
+import store from "../lib/store.js";
 
 export default function handler(req, res) {
-  const visible = store.skills.filter(s => s.visible);
-  return res.status(200).json({ success: true, data: visible });
+  try {
+    const visible = store.skills.filter(s => s.visible);
+    return res.status(200).json({ success: true, data: visible });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err ? err.message : "Server error" });
+  }
 }
