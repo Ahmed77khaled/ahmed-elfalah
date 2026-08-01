@@ -1,6 +1,6 @@
-const store = require("./_store");
+import store from "./_store.js";
 
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   if (req.method === "POST") {
     let body = req.body;
     if (typeof body === "string") { try { body = JSON.parse(body); } catch(e){} }
@@ -18,4 +18,4 @@ module.exports = function handler(req, res) {
     return res.status(200).json({ success: true, data: { ok: true } });
   }
   return res.status(405).json({ error: "Method not allowed" });
-};
+}

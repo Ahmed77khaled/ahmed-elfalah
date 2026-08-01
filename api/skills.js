@@ -1,6 +1,6 @@
-const store = require("./_store");
+import store from "./_store.js";
 
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   const visible = store.skills.filter(s => s.visible);
   return res.status(200).json({ success: true, data: visible });
-};
+}

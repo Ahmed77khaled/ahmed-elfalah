@@ -1,4 +1,4 @@
-let projects = [
+export const projects = [
   {
     id: 1,
     title: "DevOps & Infrastructure Automation Platform",
@@ -39,7 +39,7 @@ let projects = [
   }
 ];
 
-let skills = [
+export const skills = [
   { id: 1, name: "Python", icon: "code", percentage: 90, category: "Backend", visible: true, displayOrder: 1 },
   { id: 2, name: "DevOps & Docker", icon: "container", percentage: 85, category: "DevOps", visible: true, displayOrder: 2 },
   { id: 3, name: "Linux Administration", icon: "terminal", percentage: 88, category: "Infrastructure", visible: true, displayOrder: 3 },
@@ -47,7 +47,7 @@ let skills = [
   { id: 5, name: "Networking & Security", icon: "shield", percentage: 80, category: "Networking", visible: true, displayOrder: 5 }
 ];
 
-let experience = [
+export const experience = [
   {
     id: 1,
     company: "Freelance",
@@ -62,7 +62,7 @@ let experience = [
   }
 ];
 
-let messages = [
+export const messages = [
   {
     id: 1,
     name: "John Doe",
@@ -74,16 +74,18 @@ let messages = [
   }
 ];
 
-let settings = {
+export const settings = {
   siteTitle: "Ahmed El-Falah | Portfolio",
   adminEmail: "ahmed@example.com",
   maintenanceMode: "false"
 };
 
-module.exports = {
+const store = {
   projects,
   skills,
   experience,
   messages,
   settings,
 };
+
+export default store;

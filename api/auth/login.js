@@ -1,4 +1,4 @@
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -24,4 +24,4 @@ module.exports = function handler(req, res) {
   } catch (err) {
     return res.status(500).json({ error: err ? err.message : "Internal server error" });
   }
-};
+}

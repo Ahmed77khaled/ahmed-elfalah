@@ -1,6 +1,6 @@
-const store = require("../_store");
+import store from "../_store.js";
 
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   const unread = store.messages.filter(m => !m.read).length;
   return res.status(200).json({
     success: true,
@@ -12,4 +12,4 @@ module.exports = function handler(req, res) {
       unreadMessages: unread
     }
   });
-};
+}

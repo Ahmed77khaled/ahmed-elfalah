@@ -1,6 +1,6 @@
-const store = require("../_store");
+import store from "../_store.js";
 
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   if (req.method === "GET") {
     return res.status(200).json({ success: true, data: store.skills });
   }
@@ -21,4 +21,4 @@ module.exports = function handler(req, res) {
     return res.status(200).json({ success: true, data: newSkill });
   }
   return res.status(405).json({ error: "Method not allowed" });
-};
+}

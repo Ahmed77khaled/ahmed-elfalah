@@ -1,4 +1,4 @@
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   const auth = req.headers.authorization || "";
   if (!auth.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -16,4 +16,4 @@ module.exports = function handler(req, res) {
   } catch (e) {
     return res.status(401).json({ error: "Invalid token" });
   }
-};
+}
