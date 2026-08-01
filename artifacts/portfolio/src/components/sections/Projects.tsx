@@ -146,6 +146,36 @@ function use3DTilt() {
   return { handleMouseMove, handleMouseLeave };
 }
 
+function SafeImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  if (error || !src) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <div className="text-7xl font-black font-mono opacity-20" style={{ color: "hsl(var(--primary))" }}>
+          {alt.slice(0, 3).toUpperCase()}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      key={src}
+      src={src}
+      alt={alt}
+      referrerPolicy="no-referrer"
+      loading="lazy"
+      className={className}
+      onError={() => setError(true)}
+    />
+  );
+}
+
 function ProjectModal({ project, open, onClose }: { project: Project | null; open: boolean; onClose: () => void }) {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
 
@@ -202,24 +232,11 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               border: "1px solid hsl(var(--border))",
             }}
           >
-            {currentImg ? (
-              <img
-                key={currentImg}
-                src={currentImg}
-                alt={`${project.title} - ${activeImgIndex + 1}`}
-                className="w-full h-full object-cover transition-all duration-300"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = "none";
-                }}
-              />
-            ) : (
-              <div
-                className="text-7xl font-black font-mono opacity-20"
-                style={{ color: "hsl(var(--primary))" }}
-              >
-                {project.title.slice(0, 3).toUpperCase()}
-              </div>
-            )}
+            <SafeImage
+              src={currentImg || ""}
+              alt={`${project.title} - ${activeImgIndex + 1}`}
+              className="w-full h-full object-cover transition-all duration-300"
+            />
 
             {/* Navigation Arrows if multiple images */}
             {allImages.length > 1 && (
@@ -357,23 +374,11 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
           className="relative h-48 flex items-center justify-center overflow-hidden"
           style={{ background: project.gradient }}
         >
-          {project.coverImage ? (
-            <img
-              src={project.coverImage}
-              alt={project.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = "none";
-              }}
-            />
-          ) : (
-            <div
-              className="text-7xl font-black font-mono opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-              style={{ color: "hsl(var(--primary))" }}
-            >
-              {project.title.slice(0, 3).toUpperCase()}
-            </div>
-          )}
+          <SafeImage
+            src={project.coverImage || ""}
+            alt={project.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
             style={{ background: "radial-gradient(circle at center, hsl(var(--primary) / 0.08) 0%, transparent 70%)" }}
           />
