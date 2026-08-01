@@ -1,4 +1,4 @@
-import store from "../lib/store.js";
+import store from "./store.js";
 
 export default function handler(req, res) {
   try {
