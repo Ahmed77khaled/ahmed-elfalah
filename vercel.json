@@ -2,30 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm --filter @workspace/portfolio run build",
   "outputDirectory": "artifacts/portfolio/dist/public",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/admin/projects/:id",
-      "destination": "/api/admin-projects?id=:id"
-    },
-    {
-      "source": "/api/admin/skills/:id",
-      "destination": "/api/admin-skills?id=:id"
-    },
-    {
-      "source": "/api/admin/experience/:id",
-      "destination": "/api/admin-experience?id=:id"
-    },
-    {
-      "source": "/api/admin/messages/:id/read",
-      "destination": "/api/admin-messages?id=:id&action=read"
-    },
-    {
-      "source": "/api/admin/messages/:id",
-      "destination": "/api/admin-messages?id=:id"
-    },
-    {
-      "source": "/api/admin/:path*",
-      "destination": "/api/admin-:path*"
+      "source": "/api/:path*",
+      "destination": "/api/index"
     },
     {
       "source": "/:path((?!api(?:/|$)).*)",
