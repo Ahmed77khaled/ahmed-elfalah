@@ -17,6 +17,7 @@ interface Project {
   gradient: string;
   demoUrl: string;
   githubUrl: string;
+  coverImage?: string;
 }
 
 /* Legacy static project content retained only as a non-executing design reference.
@@ -171,25 +172,36 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
         >
           {/* Hero image placeholder */}
           <div
-            className="rounded-xl w-full overflow-hidden mb-6 flex items-center justify-center"
+            className="rounded-xl w-full overflow-hidden mb-6 flex items-center justify-center relative"
             style={{
               height: "200px",
               background: project.gradient,
               border: "1px solid hsl(var(--border))",
             }}
           >
-            <div
-              className="text-7xl font-black font-mono opacity-20"
-              style={{ color: "hsl(var(--primary))" }}
-            >
-              {project.id.split("-").map((w) => w[0].toUpperCase()).join("")}
-            </div>
+            {project.coverImage ? (
+              <img
+                src={project.coverImage}
+                alt={project.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <div
+                className="text-7xl font-black font-mono opacity-20"
+                style={{ color: "hsl(var(--primary))" }}
+              >
+                {project.title.slice(0, 3).toUpperCase()}
+              </div>
+            )}
           </div>
-
+ 
           <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(var(--muted-foreground))" }}>
             {project.description}
           </p>
-
+ 
           {/* Features */}
           <div className="mb-6">
             <h4 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "hsl(var(--primary))" }}>
@@ -204,7 +216,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               ))}
             </ul>
           </div>
-
+ 
           {/* Tech stack */}
           <div className="mb-6">
             <h4 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "hsl(var(--accent))" }}>
@@ -218,7 +230,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               ))}
             </div>
           </div>
-
+ 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
             <Button
@@ -279,17 +291,28 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
           className="relative h-48 flex items-center justify-center overflow-hidden"
           style={{ background: project.gradient }}
         >
-          <div
-            className="text-7xl font-black font-mono opacity-20 group-hover:opacity-30 transition-opacity duration-500"
-            style={{ color: "hsl(var(--primary))" }}
-          >
-            {project.id.split("-").map((w) => w[0].toUpperCase()).join("")}
-          </div>
-          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          {project.coverImage ? (
+            <img
+              src={project.coverImage}
+              alt={project.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <div
+              className="text-7xl font-black font-mono opacity-20 group-hover:opacity-30 transition-opacity duration-500"
+              style={{ color: "hsl(var(--primary))" }}
+            >
+              {project.title.slice(0, 3).toUpperCase()}
+            </div>
+          )}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
             style={{ background: "radial-gradient(circle at center, hsl(var(--primary) / 0.08) 0%, transparent 70%)" }}
           />
-          <div className="absolute top-3 right-3">
-            <Badge variant="outline" className="text-xs">
+          <div className="absolute top-3 right-3 z-10">
+            <Badge variant="outline" className="text-xs bg-background/80 backdrop-blur-sm">
               {project.category}
             </Badge>
           </div>
@@ -343,9 +366,9 @@ export function Projects() {
   useEffect(() => { const load=()=>{void api.getPublicProjects().then(setCmsProjects).catch(() => setCmsProjects([]));}; load(); window.addEventListener("cms-data-changed",load); return()=>window.removeEventListener("cms-data-changed",load); }, []);
   const displayProjects: Project[] = cmsProjects.map((project) => ({
     id: String(project.id), title: project.title, tagline: project.subtitle || project.shortDescription,
-    description: project.longDescription || project.shortDescription, features: project.features,
-    tech: project.techStack, category: project.category, gradient: "linear-gradient(135deg, hsl(190 100% 50% / 0.15), hsl(262 83% 57% / 0.1))",
-    demoUrl: project.demoUrl || "#", githubUrl: project.githubUrl || "#",
+    description: project.longDescription || project.shortDescription, features: project.features || [],
+    tech: project.techStack || [], category: project.category, gradient: "linear-gradient(135deg, hsl(190 100% 50% / 0.15), hsl(262 83% 57% / 0.1))",
+    demoUrl: project.demoUrl || "#", githubUrl: project.githubUrl || "#", coverImage: project.coverImage,
   }));
 
   return (
