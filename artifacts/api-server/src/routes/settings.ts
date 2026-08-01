@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, settingsTable, eq } from "../../../../lib/db/src/index";
+import { db, settingsTable, eq } from "@workspace/db";
 import { requireAuth } from "../lib/auth.js";
 
 const router = Router();

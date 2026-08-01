@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { insertMessageSchema } from "../../../../lib/db/src/index";
+import { insertMessageSchema } from "@workspace/db";
 import { fail, ok } from "../lib/http.js";
 import { cmsService } from "../services/cms.js";
 

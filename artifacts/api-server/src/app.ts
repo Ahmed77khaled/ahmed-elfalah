@@ -3,9 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import pinoHttpModule from "pino-http";
-import { env } from "./lib/env";
-import { logger } from "./lib/logger";
-import router from "./routes/index";
+import { env } from "./lib/env.js";
+import { logger } from "./lib/logger.js";
+import router from "./routes/index.js";
 
 const pinoHttp = (pinoHttpModule as any).default || pinoHttpModule;
 const app = express();
