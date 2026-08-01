@@ -176,6 +176,17 @@ function SafeImage({ src, alt, className }: { src: string; alt: string; classNam
   );
 }
 
+function parseArray(val: unknown): string[] {
+  if (Array.isArray(val)) return val.filter((x): x is string => typeof x === "string" && Boolean(x.trim()));
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed.filter((x): x is string => typeof x === "string" && Boolean(x.trim()));
+    } catch {}
+  }
+  return [];
+}
+
 function ProjectModal({ project, open, onClose }: { project: Project | null; open: boolean; onClose: () => void }) {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
 
@@ -185,7 +196,9 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
 
   if (!project) return null;
 
-  const allImages = [project.coverImage, ...(project.galleryImages || [])].filter((url): url is string => Boolean(url && url.trim()));
+  const gallery = parseArray(project.galleryImages);
+  const cover = project.coverImage?.trim();
+  const allImages = Array.from(new Set([cover, ...gallery].filter((url): url is string => Boolean(url && url.trim()))));
 
   const nextImg = () => {
     if (allImages.length > 0) {
@@ -225,7 +238,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
         >
           {/* Image Gallery Slider / Cover */}
           <div
-            className="rounded-xl w-full overflow-hidden mb-6 flex items-center justify-center relative group"
+            className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group"
             style={{
               height: "260px",
               background: project.gradient,
@@ -244,33 +257,33 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
                 <button
                   type="button"
                   onClick={prevImg}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border border-white/20 backdrop-blur-sm z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 text-white hover:bg-black/90 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-xl cursor-pointer"
                   aria-label="Previous Image"
                 >
-                  <ChevronLeft size={18} />
+                  <ChevronLeft size={20} />
                 </button>
                 <button
                   type="button"
                   onClick={nextImg}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-all border border-white/20 backdrop-blur-sm z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 text-white hover:bg-black/90 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-xl cursor-pointer"
                   aria-label="Next Image"
                 >
-                  <ChevronRight size={18} />
+                  <ChevronRight size={20} />
                 </button>
 
                 {/* Counter indicator */}
-                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-xs font-medium border border-white/20 backdrop-blur-sm z-10">
+                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 text-white text-xs font-bold border border-white/20 backdrop-blur-md z-20 shadow-md">
                   {activeImgIndex + 1} / {allImages.length}
                 </div>
 
                 {/* Navigation Dots */}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 border border-white/20 backdrop-blur-sm z-10">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 border border-white/20 backdrop-blur-md z-20 shadow-md">
                   {allImages.map((_, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => setActiveImgIndex(idx)}
-                      className={`h-2 rounded-full transition-all ${
+                      className={`h-2 rounded-full transition-all cursor-pointer ${
                         idx === activeImgIndex ? "w-6 bg-primary" : "w-2 bg-white/50 hover:bg-white"
                       }`}
                       aria-label={`Go to slide ${idx + 1}`}
@@ -280,6 +293,26 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               </>
             )}
           </div>
+
+          {/* Thumbnail Strip */}
+          {allImages.length > 1 && (
+            <div className="flex items-center gap-2.5 mt-3 mb-6 overflow-x-auto pb-1">
+              {allImages.map((img, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setActiveImgIndex(idx)}
+                  className={`relative rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 w-20 h-14 cursor-pointer ${
+                    idx === activeImgIndex ? "border-primary ring-2 ring-primary/40 scale-105" : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <SafeImage src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {allImages.length <= 1 && <div className="mb-6" />}
  
           <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(var(--muted-foreground))" }}>
             {project.description}
@@ -437,9 +470,13 @@ export function Projects() {
   useEffect(() => { const load=()=>{void api.getPublicProjects().then(setCmsProjects).catch(() => setCmsProjects([]));}; load(); window.addEventListener("cms-data-changed",load); return()=>window.removeEventListener("cms-data-changed",load); }, []);
   const displayProjects: Project[] = cmsProjects.map((project) => ({
     id: String(project.id), title: project.title, tagline: project.subtitle || project.shortDescription,
-    description: project.longDescription || project.shortDescription, features: project.features || [],
-    tech: project.techStack || [], category: project.category, gradient: "linear-gradient(135deg, hsl(190 100% 50% / 0.15), hsl(262 83% 57% / 0.1))",
-    demoUrl: project.demoUrl || "#", githubUrl: project.githubUrl || "#", coverImage: project.coverImage,
+    description: project.longDescription || project.shortDescription,
+    features: parseArray(project.features),
+    tech: parseArray(project.techStack),
+    category: project.category, gradient: "linear-gradient(135deg, hsl(190 100% 50% / 0.15), hsl(262 83% 57% / 0.1))",
+    demoUrl: project.demoUrl || "#", githubUrl: project.githubUrl || "#",
+    coverImage: project.coverImage,
+    galleryImages: parseArray(project.galleryImages),
   }));
 
   return (
