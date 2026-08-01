@@ -12,8 +12,6 @@
   "private": true,
   "dependencies": {
     "@replit/connectors-sdk": "^0.4.1",
-    "@workspace/api-zod": "workspace:*",
-    "@workspace/db": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "drizzle-orm": "^0.39.0",
