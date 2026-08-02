@@ -34,6 +34,13 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMPTZ
   );
+  CREATE TABLE IF NOT EXISTS media (
+    id SERIAL PRIMARY KEY,
+    filename TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    bytes BYTEA NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  );
 
 -- Initial portfolio content. Existing rows are never overwritten.
 INSERT INTO projects (title, subtitle, short_description, long_description, cover_image, github_url, demo_url, tech_stack, features, category, status, featured, display_order)

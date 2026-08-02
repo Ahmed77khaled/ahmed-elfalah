@@ -238,6 +238,7 @@ Expected CV response: HTTP 200 with `Content-Type: application/pdf`.
 - [ ] Add real certificate images and verification links to the Certifications UI.
 - [ ] Review the existing 16 certificate cards: replace any placeholder/assumed entry with verified owner-provided data.
 - [ ] Update Current Focus dates/status as training milestones change.
+- [ ] When a course ends, use the Dashboard reminder, then add its certificate and final evidence to the relevant page.
 
 ### Good next improvements
 
@@ -245,6 +246,7 @@ Expected CV response: HTTP 200 with `Content-Type: application/pdf`.
 - [ ] Add a status/tag design for `Completed`, `In progress`, and `Upcoming` credentials.
 - [ ] Make the Certifications section data-driven from the database after the owner has assembled verified evidence.
 - [ ] Review project entries, GitHub URLs, cover images, and categories for accuracy.
+- [ ] CCNA gallery is arranged around the dated evidence sequence (29 Jan–23 Feb 2026). A few authentic classroom/event photos have no embedded timestamp; keep their current contextual position unless Ahmed confirms their exact date.
 - [ ] Reduce the main JavaScript bundle if performance becomes a concern (the build warns that it is above 500 kB after minification).
 
 ## 11. Worktree hygiene

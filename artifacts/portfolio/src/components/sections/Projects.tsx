@@ -359,7 +359,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
           >
             {/* Image Gallery Slider / Cover */}
             <div
-              className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group cursor-pointer bg-black/50"
+              className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group cursor-pointer"
               style={{
                 height: "280px",
                 background: project.gradient,
@@ -367,20 +367,23 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               }}
               onClick={() => setLightboxOpen(true)}
             >
+              {/* CSS-only blurred backdrop — no second HTTP request */}
               {currentImg && (
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <img
-                    src={currentImg}
-                    alt=""
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover filter blur-xl scale-125 opacity-40"
-                  />
-                </div>
+                <div
+                  className="absolute inset-0 scale-110 pointer-events-none"
+                  style={{
+                    backgroundImage: `url(${currentImg})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    filter: "blur(18px)",
+                    opacity: 0.35,
+                  }}
+                />
               )}
               <SafeImage
                 src={currentImg || ""}
                 alt={`${project.title} - ${activeImgIndex + 1}`}
-                className="relative z-10 w-full h-full object-contain object-top transition-all duration-300 group-hover:scale-105"
+                className="relative z-10 w-full h-full object-contain transition-all duration-300 group-hover:scale-[1.02]"
               />
 
               {/* Fullscreen Expand / Zoom Button */}
@@ -449,7 +452,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               )}
             </div>
 
-          {/* Thumbnail Strip */}
+          {/* Thumbnail Strip — lazy loaded, only visible after modal opens */}
           {allImages.length > 1 && (
             <div className="flex items-center gap-2.5 mt-3 mb-6 overflow-x-auto pb-1">
               {allImages.map((img, idx) => (
@@ -461,7 +464,16 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
                     idx === activeImgIndex ? "border-primary ring-2 ring-primary/40 scale-105" : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <SafeImage src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                  {/* load eagerly only the active thumbnail, lazy for all others */}
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${idx + 1}`}
+                    referrerPolicy="no-referrer"
+                    loading={idx === activeImgIndex ? "eager" : "lazy"}
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  />
                 </button>
               ))}
             </div>
