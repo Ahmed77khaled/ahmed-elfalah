@@ -143,33 +143,39 @@ async function sendTelegramNotification(text, botType = "messages") {
 }
 
 async function sendEmailNotification(name, email, subject, message) {
-  const resendApiKey = process.env.RESEND_API_KEY;
   const notifyEmail = process.env.NOTIFY_EMAIL || "ahmed.khaled.elfalah@gmail.com";
 
-  if (!resendApiKey) return;
-
   try {
-    await fetch("https://api.resend.com/emails", {
+    // 1. Try Resend if API key configured
+    if (process.env.RESEND_API_KEY) {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Portfolio Notifications <onboarding@resend.dev>",
+          to: [notifyEmail],
+          subject: `📬 New Contact Message: ${subject}`,
+          html: `<div style="font-family: sans-serif; padding: 20px;"><h2>New Contact Message</h2><p><b>From:</b> ${name} (${email})</p><p><b>Subject:</b> ${subject}</p><p><b>Message:</b></p><blockquote>${message}</blockquote></div>`,
+        }),
+      });
+      return;
+    }
+
+    // 2. Fallback to FormSubmit for instant email delivery to Gmail
+    await fetch(`https://formsubmit.co/ajax/${notifyEmail}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
       body: JSON.stringify({
-        from: "Portfolio Notifications <onboarding@resend.dev>",
-        to: [notifyEmail],
-        subject: `📬 New Contact Message: ${subject}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px;">
-            <h2 style="color: #1d4ed8; margin-top: 0;">New Message Received</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Subject:</strong> ${subject}</p>
-            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 15px 0;" />
-            <p><strong>Message:</strong></p>
-            <div style="background: #f8fafc; padding: 15px; border-left: 4px solid #1d4ed8; border-radius: 4px; white-space: pre-wrap;">${message}</div>
-          </div>
-        `,
+        name,
+        email,
+        _subject: `📬 Portfolio Contact: ${subject}`,
+        message: `From: ${name} (${email})\nSubject: ${subject}\n\nMessage:\n${message}`,
       }),
     });
   } catch (e) {
@@ -185,8 +191,12 @@ async function handleMessages(req, res) {
     await query("INSERT INTO messages (name,email,subject,message) VALUES ($1,$2,$3,$4)", [name.trim(), email.trim(), subject.trim(), message.trim()]);
 
     const tgText = `📬 <b>New Contact Form Submission</b>\n\n👤 <b>Name:</b> ${name.trim()}\n📧 <b>Email:</b> ${email.trim()}\n📌 <b>Subject:</b> ${subject.trim()}\n\n💬 <b>Message:</b>\n${message.trim()}`;
-    sendTelegramNotification(tgText, "messages").catch(() => {});
-    sendEmailNotification(name.trim(), email.trim(), subject.trim(), message.trim()).catch(() => {});
+
+    // Await notifications before Vercel freezes execution
+    await Promise.allSettled([
+      sendTelegramNotification(tgText, "messages"),
+      sendEmailNotification(name.trim(), email.trim(), subject.trim(), message.trim()),
+    ]);
 
     return res.status(201).json({ success: true, data: { ok: true } });
   } catch (error) { return sendDatabaseError(res, error); }
@@ -198,7 +208,7 @@ async function handleTrackVisitor(req, res) {
   const ip = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "Unknown";
 
   const tgText = `👁️ <b>New Visitor on Website</b>\n\n📄 <b>Page:</b> ${page}\n🔗 <b>Referrer:</b> ${referrer || 'Direct / Bookmark'}\n🌐 <b>IP:</b> ${ip}`;
-  sendTelegramNotification(tgText, "visitors").catch(() => {});
+  await sendTelegramNotification(tgText, "visitors").catch(() => {});
 
   return res.status(200).json({ success: true });
 }
@@ -211,10 +221,10 @@ async function handleAuthLogin(req, res) {
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminPassword || !process.env.SESSION_SECRET) return res.status(503).json({ error: "Admin authentication is not configured" });
   if (body.password !== adminPassword) {
-    sendTelegramNotification(`⚠️ <b>Failed Admin Login Attempt</b>\nAn invalid password was entered for the Admin Dashboard.`, "visitors").catch(() => {});
+    await sendTelegramNotification(`⚠️ <b>Failed Admin Login Attempt</b>\nAn invalid password was entered for the Admin Dashboard.`, "visitors").catch(() => {});
     return res.status(401).json({ error: "Invalid password" });
   }
-  sendTelegramNotification(`🔐 <b>Successful Admin Login</b>\nAdmin logged into the Portfolio Dashboard.`, "visitors").catch(() => {});
+  await sendTelegramNotification(`🔐 <b>Successful Admin Login</b>\nAdmin logged into the Portfolio Dashboard.`, "visitors").catch(() => {});
   return res.status(200).json({ token: signAdminToken() });
 }
 
