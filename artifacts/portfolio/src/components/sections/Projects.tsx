@@ -5,6 +5,7 @@ import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@workspace/fel7o-ds/components/ui/dialog";
 import { api, type ProjectRow } from "@/lib/admin-api";
+import { ImageLightbox } from "@/components/ImageLightbox";
 
 interface Project {
   id: string;
@@ -187,122 +188,6 @@ function parseArray(val: unknown): string[] {
     } catch {}
   }
   return [];
-}
-
-function ImageLightbox({
-  images,
-  currentIndex,
-  open,
-  onClose,
-  onIndexChange,
-  title,
-}: {
-  images: string[];
-  currentIndex: number;
-  open: boolean;
-  onClose: () => void;
-  onIndexChange: (idx: number) => void;
-  title: string;
-}) {
-  useEffect(() => {
-    if (!open) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        onIndexChange((currentIndex - 1 + images.length) % images.length);
-      } else if (e.key === "ArrowRight") {
-        onIndexChange((currentIndex + 1) % images.length);
-      } else if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, currentIndex, images.length, onIndexChange, onClose]);
-
-  if (!open || images.length === 0) return null;
-
-  const currentImg = images[currentIndex] || images[0];
-
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent
-        className="max-w-[95vw] w-full h-[92vh] p-0 border-none bg-black/95 text-white flex flex-col justify-between overflow-hidden shadow-2xl backdrop-blur-xl"
-        data-testid="image-lightbox"
-      >
-        {/* Lightbox Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/40 z-30 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-bold text-white/90">{title}</span>
-            {images.length > 1 && (
-              <span className="px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-mono font-bold">
-                {currentIndex + 1} / {images.length}
-              </span>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/80 hover:text-white cursor-pointer"
-            aria-label="Close Fullscreen View"
-          >
-            <X size={22} />
-          </button>
-        </div>
-
-        {/* Lightbox Main Image Display */}
-        <div className="relative flex-1 flex items-center justify-center p-4 overflow-hidden select-none">
-          <SafeImage
-            src={currentImg}
-            alt={`${title} - ${currentIndex + 1}`}
-            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-all duration-300"
-          />
-
-          {/* Nav Controls overlay */}
-          {images.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() => onIndexChange((currentIndex - 1 + images.length) % images.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/70 hover:bg-black/90 text-white hover:scale-110 border border-white/20 backdrop-blur-md transition-all shadow-2xl z-30 cursor-pointer"
-                aria-label="Previous Image"
-              >
-                <ChevronLeft size={24} />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => onIndexChange((currentIndex + 1) % images.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/70 hover:bg-black/90 text-white hover:scale-110 border border-white/20 backdrop-blur-md transition-all shadow-2xl z-30 cursor-pointer"
-                aria-label="Next Image"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Lightbox Bottom Thumbnails Strip */}
-        {images.length > 1 && (
-          <div className="flex items-center justify-center gap-2 p-4 border-t border-white/10 bg-black/40 overflow-x-auto z-30 flex-shrink-0">
-            {images.map((img, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => onIndexChange(idx)}
-                className={`relative rounded-md overflow-hidden border-2 transition-all flex-shrink-0 w-16 h-11 cursor-pointer ${
-                  idx === currentIndex
-                    ? "border-primary scale-110 shadow-lg"
-                    : "border-transparent opacity-50 hover:opacity-100"
-                }`}
-              >
-                <SafeImage src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
-              </button>
-            ))}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 function ProjectModal({ project, open, onClose }: { project: Project | null; open: boolean; onClose: () => void }) {

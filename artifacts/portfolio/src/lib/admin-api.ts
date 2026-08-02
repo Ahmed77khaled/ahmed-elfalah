@@ -228,6 +228,8 @@ export interface ExperienceRow {
   endDate: string;
   currentPosition: boolean;
   companyLogo: string;
+  type?: string;
+  galleryImages?: string[];
   displayOrder: number;
   createdAt: string;
 }
