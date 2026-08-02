@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearch } from "wouter";
-import { ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { api, type ProjectRow, type ProjectPayload } from "@/lib/admin-api";
@@ -31,30 +31,54 @@ function FocalPointPicker({ coverImage, value, onChange }: { coverImage: string;
   const xNum = parseInt(parts[0] ?? "50", 10);
   const yNum = parseInt(parts[1] ?? "50", 10);
   const setXY = (x: number, y: number) => onChange(`${x}% ${y}%`);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  // Click anywhere on the preview image to set focal point
+  const handleImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+    onChange(`${x}% ${y}%`);
+  };
 
   return (
     <div className="space-y-3">
-      {/* Live Preview */}
-      {coverImage && (
-        <div className="relative rounded-xl overflow-hidden border" style={{ height: "160px", border: "1px solid hsl(var(--border))" }}>
+      {/* Live Preview — click anywhere to set focal point */}
+      {coverImage ? (
+        <div
+          ref={imgRef}
+          className="relative rounded-xl overflow-hidden cursor-crosshair select-none"
+          style={{ height: "200px", border: "2px solid hsl(var(--primary) / 0.4)" }}
+          onClick={handleImageClick}
+          title="Click anywhere on the image to set the focal point"
+        >
           <img
             src={coverImage}
             alt="focal point preview"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-cover"
+            draggable={false}
+            className="w-full h-full object-cover pointer-events-none"
             style={{ objectPosition: value }}
           />
           {/* Crosshair dot */}
           <div
-            className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+            className="absolute w-5 h-5 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 transition-all duration-150"
             style={{
               left: parts[0] ?? "50%",
               top: parts[1] ?? "50%",
               background: "hsl(var(--primary))",
-              boxShadow: "0 0 0 2px rgba(0,0,0,0.5), 0 0 12px hsl(var(--primary) / 0.6)",
+              boxShadow: "0 0 0 2px rgba(0,0,0,0.6), 0 0 14px hsl(var(--primary) / 0.7)",
             }}
           />
+          {/* Hint overlay */}
+          <div className="absolute top-2 left-2 text-xs bg-black/70 text-white px-2 py-0.5 rounded-full z-10 backdrop-blur-sm flex items-center gap-1">
+            <span>👆</span> Click to set focus
+          </div>
           <div className="absolute bottom-2 right-2 text-xs font-mono bg-black/70 text-white px-2 py-0.5 rounded-full z-10">{value}</div>
+        </div>
+      ) : (
+        <div className="rounded-xl flex items-center justify-center text-sm" style={{ height: "120px", border: "2px dashed hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
+          Enter a Cover Image URL above to enable focal point selection
         </div>
       )}
 
@@ -87,6 +111,38 @@ function FocalPointPicker({ coverImage, value, onChange }: { coverImage: string;
         <div className="space-y-1">
           <label className="text-xs font-medium" style={{ color: "hsl(var(--muted-foreground))" }}>Vertical (Y): {yNum}%</label>
           <input type="range" min={0} max={100} value={yNum} onChange={(e) => setXY(xNum, Number(e.target.value))} className="w-full cursor-pointer" style={{ accentColor: "hsl(var(--primary))" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Delete Confirmation Modal ─────────────────────────────────────────────────
+function DeleteConfirmModal({ projectTitle, onConfirm, onCancel }: { projectTitle: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.65)" }} onClick={onCancel}>
+      <div
+        className="rounded-2xl p-6 w-full max-w-sm space-y-4 shadow-2xl"
+        style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "hsl(var(--destructive) / 0.12)" }}>
+            <AlertTriangle size={20} style={{ color: "hsl(var(--destructive))" }} />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Delete Project?</h3>
+            <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>
+              <span className="font-medium text-foreground">"{projectTitle}"</span> will be permanently removed. This cannot be undone.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end pt-1">
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>Cancel</Button>
+          <Button type="button" size="sm" onClick={onConfirm}
+            style={{ background: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }}>
+            <Trash2 size={13} className="mr-1.5" /> Delete
+          </Button>
         </div>
       </div>
     </div>
@@ -318,6 +374,7 @@ export default function AdminProjects() {
   const [editing, setEditing] = useState<ProjectRow | null>(null);
   const [creating, setCreating] = useState(openNew);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ProjectRow | null>(null);
 
   async function load() {
     setLoading(true);
@@ -353,14 +410,23 @@ export default function AdminProjects() {
   }
 
   async function handleDelete(id: number) {
-    if (!confirm("Delete this project?")) return;
     await api.deleteProject(id);
     setProjects((p) => p.filter((x) => x.id !== id));
+    setDeleteTarget(null);
     toast({ title: "Project deleted" });
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <DeleteConfirmModal
+          projectTitle={deleteTarget.title}
+          onConfirm={() => handleDelete(deleteTarget.id)}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Projects</h1>
@@ -381,7 +447,15 @@ export default function AdminProjects() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="rounded-xl animate-pulse" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", height: "80px" }} />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl animate-pulse flex gap-3 p-3" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", height: "80px" }}>
+              <div className="w-20 h-full rounded-lg flex-shrink-0" style={{ background: "hsl(var(--muted))" }} />
+              <div className="flex-1 space-y-2 py-1">
+                <div className="h-3 rounded" style={{ background: "hsl(var(--muted))", width: "60%" }} />
+                <div className="h-2 rounded" style={{ background: "hsl(var(--muted))", width: "40%" }} />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="space-y-3">
@@ -389,8 +463,35 @@ export default function AdminProjects() {
             editing?.id === p.id ? (
               <ProjectForm key={p.id} initial={{ ...p }} onSave={handleUpdate} onCancel={() => setEditing(null)} saving={saving} />
             ) : (
-              <div key={p.id} className="rounded-xl p-4 flex items-center gap-4"
+              <div key={p.id} className="rounded-xl p-3 flex items-center gap-3 group transition-colors hover:border-primary/40"
                 style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+
+                {/* Cover Thumbnail */}
+                <div className="relative flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden" style={{ background: "hsl(var(--muted))" }}>
+                  {p.coverImage ? (
+                    <img
+                      src={p.coverImage}
+                      alt={p.title}
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      style={{ objectPosition: p.coverImagePosition || "center" }}
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Image size={18} style={{ color: "hsl(var(--muted-foreground))" }} />
+                    </div>
+                  )}
+                  {/* Image count badge */}
+                  {p.galleryImages.length > 0 && (
+                    <div className="absolute bottom-0.5 right-0.5 text-xs font-bold bg-black/80 text-white px-1 rounded" style={{ fontSize: "9px", lineHeight: "14px" }}>
+                      📷{p.galleryImages.length}
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-sm text-foreground truncate">{p.title}</span>
@@ -403,7 +504,7 @@ export default function AdminProjects() {
                     {p.shortDescription || p.subtitle || p.category}
                   </p>
                   {p.techStack.length > 0 && (
-                    <div className="flex gap-1 mt-1.5 flex-wrap">
+                    <div className="flex gap-1 mt-1 flex-wrap">
                       {p.techStack.slice(0, 4).map((t) => (
                         <span key={t} className="text-xs px-1.5 py-0.5 rounded"
                           style={{ background: "hsl(var(--primary) / 0.1)", color: "hsl(var(--primary))" }}>{t}</span>
@@ -414,11 +515,13 @@ export default function AdminProjects() {
                     </div>
                   )}
                 </div>
-                <div className="flex gap-2 flex-shrink-0">
-                  <Button variant="ghost" size="sm" onClick={() => { setEditing(p); setCreating(false); }}>
+
+                {/* Actions */}
+                <div className="flex gap-1.5 flex-shrink-0">
+                  <Button variant="ghost" size="sm" onClick={() => { setEditing(p); setCreating(false); }} title="Edit project">
                     <Pencil size={13} />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(p.id)} className="text-destructive hover:text-destructive">
+                  <Button variant="ghost" size="sm" onClick={() => setDeleteTarget(p)} className="text-destructive hover:text-destructive" title="Delete project">
                     <Trash2 size={13} />
                   </Button>
                 </div>
