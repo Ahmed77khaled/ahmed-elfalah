@@ -314,9 +314,9 @@ export function Hero() {
                 data-testid="hero-download-resume"
                 style={{ borderColor: "hsl(var(--primary) / 0.4)" }}
               >
-                <a href="/resume.pdf" download>
+                <a href="/Ahmed_Khaled_Elfalah_FINAL_CV.pdf" target="_blank" rel="noopener noreferrer" download>
                   <Download size={16} className="mr-2" />
-                  Download Resume
+                  Download CV (PDF)
                 </a>
               </Button>
               <Button

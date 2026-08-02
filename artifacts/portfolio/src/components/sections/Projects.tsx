@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import { ExternalLink, Github, X, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
@@ -464,6 +464,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
 
 export function Projects() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeCategory, setActiveCategory] = useState("All");
   const [cmsProjects, setCmsProjects] = useState<ProjectRow[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
   const headerInView = useInView(headerRef, { once: true });
@@ -478,6 +479,15 @@ export function Projects() {
     coverImage: project.coverImage,
     galleryImages: parseArray(project.galleryImages),
   }));
+  const categories = ["All", "IoT & Embedded", "AI & Security", "Engineering", "Web Development"];
+  const normalizeCategory = (category: string) => {
+    const value = category.toLowerCase();
+    if (value.includes("iot") || value.includes("embedded")) return "IoT & Embedded";
+    if (value.includes("ai") || value.includes("security")) return "AI & Security";
+    if (value.includes("engineering") || value.includes("network")) return "Engineering";
+    return "Web Development";
+  };
+  const filteredProjects = activeCategory === "All" ? displayProjects : displayProjects.filter((project) => normalizeCategory(project.category) === activeCategory);
 
   return (
     <section id="projects" className="relative py-24 md:py-32" data-testid="projects-section">
@@ -505,9 +515,15 @@ export function Projects() {
           </p>
         </motion.div>
 
+        <div className="flex flex-wrap justify-center gap-2 mb-10" role="tablist" aria-label="Project categories">
+          {categories.map((category) => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => setActiveCategory(category)} className="relative rounded-full px-4 py-2 text-sm font-semibold transition-colors" style={activeCategory === category ? { color: "hsl(var(--primary-foreground))", boxShadow: "0 0 24px hsl(var(--primary) / .35)" } : { color: "hsl(var(--muted-foreground))", border: "1px solid hsl(var(--border))" }}>
+            {activeCategory === category && <motion.span layoutId="project-filter" className="absolute inset-0 rounded-full -z-10 bg-primary" transition={{ type: "spring", bounce: .2, duration: .45 }} />}{category}
+          </button>)}
+        </div>
         {/* Project grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayProjects.map((project, i) => (
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+          {filteredProjects.map((project, i) => (
             <ProjectCard
               key={project.id}
               project={project}
@@ -515,7 +531,9 @@ export function Projects() {
               onClick={() => setSelectedProject(project)}
             />
           ))}
-        </div>
+          </AnimatePresence>
+        </motion.div>
+        {filteredProjects.length === 0 && <p className="text-center text-muted-foreground mt-8">Projects in this category are coming soon.</p>}
       </div>
 
       {/* Project Modal */}

@@ -14,6 +14,8 @@ import { Stats } from "@/components/sections/Stats";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
+import { Certifications } from "@/components/sections/Certifications";
+import { DeveloperStats } from "@/components/sections/DeveloperStats";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -108,6 +110,10 @@ export default function Home() {
 
             <div className="section-divider mx-6 md:mx-12" />
 
+            <Certifications />
+
+            <div className="section-divider mx-6 md:mx-12" />
+
             <Services />
 
             <div className="section-divider mx-6 md:mx-12" />
@@ -117,6 +123,8 @@ export default function Home() {
             <div className="section-divider mx-6 md:mx-12" />
 
             <Stats />
+
+            <DeveloperStats />
 
             <div className="section-divider mx-6 md:mx-12" />
 
