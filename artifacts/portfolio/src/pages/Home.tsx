@@ -16,6 +16,7 @@ import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
 import { Certifications } from "@/components/sections/Certifications";
 import { DeveloperStats } from "@/components/sections/DeveloperStats";
+import { CurrentFocus } from "@/components/sections/CurrentFocus";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -94,6 +95,8 @@ export default function Home() {
 
           <main>
             <Hero />
+
+            <CurrentFocus />
 
             {/* Section divider */}
             <div className="section-divider mx-6 md:mx-12" />
