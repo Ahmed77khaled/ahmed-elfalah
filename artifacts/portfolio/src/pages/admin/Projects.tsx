@@ -48,7 +48,7 @@ function FocalPointPicker({ coverImage, value, onChange, onCrop }: { coverImage:
       {coverImage ? (
         <div
           ref={imgRef}
-          className="relative h-48 rounded-xl overflow-hidden cursor-crosshair select-none group border shadow-md bg-black/40"
+          className="relative aspect-[2/1] w-full rounded-xl overflow-hidden cursor-crosshair select-none group border shadow-md bg-black/40"
           style={{ borderColor: "hsl(var(--primary) / 0.5)" }}
           onClick={handleImageClick}
           title="Click anywhere on the image to set the focal point"

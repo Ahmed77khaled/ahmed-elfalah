@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS projects (
   id SERIAL PRIMARY KEY, title TEXT NOT NULL, subtitle TEXT NOT NULL DEFAULT '',
   short_description TEXT NOT NULL DEFAULT '', long_description TEXT NOT NULL DEFAULT '',
-  cover_image TEXT NOT NULL DEFAULT '', gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb,
+  cover_image TEXT NOT NULL DEFAULT '', cover_image_position TEXT NOT NULL DEFAULT 'center center', gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb,
   github_url TEXT NOT NULL DEFAULT '', demo_url TEXT NOT NULL DEFAULT '',
   tech_stack JSONB NOT NULL DEFAULT '[]'::jsonb, features JSONB NOT NULL DEFAULT '[]'::jsonb,
   category TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'published', featured BOOLEAN NOT NULL DEFAULT FALSE,

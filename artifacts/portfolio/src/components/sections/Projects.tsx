@@ -466,7 +466,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
       >
         {/* Card header — visual */}
         <div
-          className="relative h-48 flex items-center justify-center overflow-hidden bg-black/40"
+          className="relative aspect-[2/1] w-full flex items-center justify-center overflow-hidden bg-black/40"
           style={{ background: project.gradient }}
         >
           {project.coverImage && (

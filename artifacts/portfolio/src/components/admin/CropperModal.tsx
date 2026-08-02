@@ -10,6 +10,7 @@ interface Box { x: number; y: number; w: number; h: number; }
 const CONTAINER_W = 660;
 const CONTAINER_H = 440;
 const MIN_CROP = 40;
+const CARD_ASPECT = 2;
 
 const HANDLE_CURSORS: Record<HandleId, string> = {
   move: "grab", nw: "nw-resize", n: "n-resize", ne: "ne-resize",
@@ -42,8 +43,11 @@ export function CropperModal({ src, onSave, onClose }: Props) {
     setNat({ w: nw, h: nh });
     setScale(s);
     setOff({ x: ox, y: oy });
-    const m = 0.04;
-    setBox({ x: ox + dw * m, y: oy + dh * m, w: dw * (1 - 2 * m), h: dh * (1 - 2 * m) });
+    // The public project card is always 2:1. Start with the largest 2:1
+    // selection so the saved crop matches what the visitor sees.
+    const cropW = Math.min(dw, dh * CARD_ASPECT);
+    const cropH = cropW / CARD_ASPECT;
+    setBox({ x: ox + (dw - cropW) / 2, y: oy + (dh - cropH) / 2, w: cropW, h: cropH });
     setReady(true);
   }, []);
 
