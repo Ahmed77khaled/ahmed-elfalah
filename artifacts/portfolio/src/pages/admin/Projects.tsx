@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearch } from "wouter";
-import { AlertTriangle, ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Scissors, Star, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { api, type ProjectRow, type ProjectPayload } from "@/lib/admin-api";
 import { toast } from "@workspace/fel7o-ds/hooks/use-toast";
+import { CropperModal } from "@/components/admin/CropperModal";
 
 const EMPTY: ProjectPayload = {
   title: "", subtitle: "", shortDescription: "", longDescription: "",
@@ -26,7 +27,7 @@ const GRID_POINTS = [
   { label: "Bottom Right", value: "100% 100%" },
 ];
 
-function FocalPointPicker({ coverImage, value, onChange }: { coverImage: string; value: string; onChange: (v: string) => void }) {
+function FocalPointPicker({ coverImage, value, onChange, onCrop }: { coverImage: string; value: string; onChange: (v: string) => void; onCrop?: () => void }) {
   const parts = value.split(" ");
   const xNum = parseInt(parts[0] ?? "50", 10);
   const yNum = parseInt(parts[1] ?? "50", 10);
@@ -47,7 +48,7 @@ function FocalPointPicker({ coverImage, value, onChange }: { coverImage: string;
       {coverImage ? (
         <div
           ref={imgRef}
-          className="relative rounded-xl overflow-hidden cursor-crosshair select-none"
+          className="relative rounded-xl overflow-hidden cursor-crosshair select-none group"
           style={{ height: "200px", border: "2px solid hsl(var(--primary) / 0.4)" }}
           onClick={handleImageClick}
           title="Click anywhere on the image to set the focal point"
@@ -71,14 +72,25 @@ function FocalPointPicker({ coverImage, value, onChange }: { coverImage: string;
             }}
           />
           {/* Hint overlay */}
-          <div className="absolute top-2 left-2 text-xs bg-black/70 text-white px-2 py-0.5 rounded-full z-10 backdrop-blur-sm flex items-center gap-1">
+          <div className="absolute top-2 left-2 text-xs bg-black/70 text-white px-2.5 py-1 rounded-full z-10 backdrop-blur-sm flex items-center gap-1">
             <span>👆</span> Click to set focus
           </div>
+          {/* Crop button */}
+          {onCrop && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onCrop(); }}
+              className="absolute top-2 right-2 px-2.5 py-1 text-xs font-medium rounded-full bg-black/75 hover:bg-black/95 text-white z-20 backdrop-blur-sm border border-white/20 flex items-center gap-1.5 transition-all shadow-md"
+              title="Crop this cover image"
+            >
+              <Scissors size={12} /> Crop & Frame
+            </button>
+          )}
           <div className="absolute bottom-2 right-2 text-xs font-mono bg-black/70 text-white px-2 py-0.5 rounded-full z-10">{value}</div>
         </div>
       ) : (
         <div className="rounded-xl flex items-center justify-center text-sm" style={{ height: "120px", border: "2px dashed hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
-          Enter a Cover Image URL above to enable focal point selection
+          Enter a Cover Image URL above to enable focal point selection & cropping
         </div>
       )}
 
@@ -179,7 +191,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
   );
 }
 
-function GalleryImageInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+function GalleryImageInput({ value, onChange, onCrop }: { value: string[]; onChange: (v: string[]) => void; onCrop?: (url: string, index: number) => void }) {
   const [input, setInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const add = () => {
@@ -223,13 +235,16 @@ function GalleryImageInput({ value, onChange }: { value: string[]; onChange: (v:
       <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>PNG, JPG, or WebP — up to 3 MB</span>
     </div>
     {value.length > 0 && <div className="space-y-2">
-      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>The first image is shown first in the public gallery. Use the arrows to change the order; the × button removes an image from this gallery.</p>
+      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>The first image is shown first in the public gallery. Use the arrows to change order; ✂️ to crop; × to remove.</p>
       {value.map((url, index) => <div key={url} className="flex items-center gap-3 rounded-xl p-2" style={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}>
         <div className="relative w-16 h-11 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: "hsl(var(--muted))" }}>
           <img src={url} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
           <Image size={16} className="absolute opacity-40" />
         </div>
         <span className="text-xs font-mono flex-1 truncate" style={{ color: "hsl(var(--muted-foreground))" }}>{index + 1}. {url}</span>
+        {onCrop && (
+          <Button type="button" variant="ghost" size="sm" onClick={() => onCrop(url, index)} title="Crop image"><Scissors size={14} /></Button>
+        )}
         <Button type="button" variant="ghost" size="sm" disabled={index === 0} onClick={() => move(index, -1)} aria-label="Move image up"><ArrowUp size={14} /></Button>
         <Button type="button" variant="ghost" size="sm" disabled={index === value.length - 1} onClick={() => move(index, 1)} aria-label="Move image down"><ArrowDown size={14} /></Button>
         <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => onChange(value.filter((item) => item !== url))} aria-label="Remove image"><X size={14} /></Button>
@@ -264,12 +279,21 @@ function ProjectForm({
   saving: boolean;
 }) {
   const [form, setForm] = useState<ProjectPayload>(initial);
+  const [cropState, setCropState] = useState<{ src: string; onSave: (url: string) => void } | null>(null);
   const set = (k: keyof ProjectPayload, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); onSave(form); }}
-      className="rounded-xl p-5 space-y-4"
+      className="rounded-xl p-5 space-y-4 relative"
       style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+
+      {cropState && (
+        <CropperModal
+          src={cropState.src}
+          onSave={cropState.onSave}
+          onClose={() => setCropState(null)}
+        />
+      )}
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Title *">
           <input required className={inputCls()} style={inputStyle()} value={form.title}
@@ -340,11 +364,27 @@ function ProjectForm({
           coverImage={form.coverImage}
           value={form.coverImagePosition ?? "center center"}
           onChange={(v) => set("coverImagePosition", v)}
+          onCrop={form.coverImage ? () => setCropState({
+            src: form.coverImage,
+            onSave: (newUrl) => { set("coverImage", newUrl); setCropState(null); }
+          }) : undefined}
         />
       </Field>
 
       <Field label="Gallery Images">
-        <GalleryImageInput value={form.galleryImages} onChange={(v) => set("galleryImages", v)} />
+        <GalleryImageInput
+          value={form.galleryImages}
+          onChange={(v) => set("galleryImages", v)}
+          onCrop={(url, idx) => setCropState({
+            src: url,
+            onSave: (newUrl) => {
+              const updated = [...form.galleryImages];
+              updated[idx] = newUrl;
+              set("galleryImages", updated);
+              setCropState(null);
+            }
+          })}
+        />
       </Field>
 
       <div className="flex items-center gap-2">
