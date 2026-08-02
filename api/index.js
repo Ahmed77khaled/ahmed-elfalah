@@ -117,8 +117,12 @@ async function handleExperience(req, res) {
 }
 
 // ─── Notifications (Telegram & Email) ──────────────────────────────────────
-async function sendTelegramNotification(text) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+// ─── Notifications (Telegram & Email) ──────────────────────────────────────
+async function sendTelegramNotification(text, botType = "messages") {
+  const token = botType === "visitors"
+    ? (process.env.TELEGRAM_VISITORS_BOT_TOKEN || "8352050648:AAGLq-QTCZ-bxUNCDPVICq15n9XK6a71NpI")
+    : (process.env.TELEGRAM_MESSAGES_BOT_TOKEN || "8790393178:AAEJKEMwituS7Exp9xmcDrLESF1_fUYqc8c");
+
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!token || !chatId) return;
 
@@ -134,7 +138,7 @@ async function sendTelegramNotification(text) {
       }),
     });
   } catch (err) {
-    console.error("Telegram notification error:", err?.message || err);
+    console.error(`Telegram ${botType} notification error:`, err?.message || err);
   }
 }
 
@@ -181,7 +185,7 @@ async function handleMessages(req, res) {
     await query("INSERT INTO messages (name,email,subject,message) VALUES ($1,$2,$3,$4)", [name.trim(), email.trim(), subject.trim(), message.trim()]);
 
     const tgText = `📬 <b>New Contact Form Submission</b>\n\n👤 <b>Name:</b> ${name.trim()}\n📧 <b>Email:</b> ${email.trim()}\n📌 <b>Subject:</b> ${subject.trim()}\n\n💬 <b>Message:</b>\n${message.trim()}`;
-    sendTelegramNotification(tgText).catch(() => {});
+    sendTelegramNotification(tgText, "messages").catch(() => {});
     sendEmailNotification(name.trim(), email.trim(), subject.trim(), message.trim()).catch(() => {});
 
     return res.status(201).json({ success: true, data: { ok: true } });
@@ -194,7 +198,7 @@ async function handleTrackVisitor(req, res) {
   const ip = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "Unknown";
 
   const tgText = `👁️ <b>New Visitor on Website</b>\n\n📄 <b>Page:</b> ${page}\n🔗 <b>Referrer:</b> ${referrer || 'Direct / Bookmark'}\n🌐 <b>IP:</b> ${ip}`;
-  sendTelegramNotification(tgText).catch(() => {});
+  sendTelegramNotification(tgText, "visitors").catch(() => {});
 
   return res.status(200).json({ success: true });
 }
@@ -207,10 +211,10 @@ async function handleAuthLogin(req, res) {
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminPassword || !process.env.SESSION_SECRET) return res.status(503).json({ error: "Admin authentication is not configured" });
   if (body.password !== adminPassword) {
-    sendTelegramNotification(`⚠️ <b>Failed Admin Login Attempt</b>\nAn invalid password was entered for the Admin Dashboard.`).catch(() => {});
+    sendTelegramNotification(`⚠️ <b>Failed Admin Login Attempt</b>\nAn invalid password was entered for the Admin Dashboard.`, "visitors").catch(() => {});
     return res.status(401).json({ error: "Invalid password" });
   }
-  sendTelegramNotification(`🔐 <b>Successful Admin Login</b>\nAdmin logged into the Portfolio Dashboard.`).catch(() => {});
+  sendTelegramNotification(`🔐 <b>Successful Admin Login</b>\nAdmin logged into the Portfolio Dashboard.`, "visitors").catch(() => {});
   return res.status(200).json({ token: signAdminToken() });
 }
 
