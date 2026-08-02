@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearch } from "wouter";
-import { AlertTriangle, ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Scissors, Star, Trash2, Upload, X } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, Check, GripVertical, Image, Pencil, Plus, Scissors, Star, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { api, type ProjectRow, type ProjectPayload } from "@/lib/admin-api";
@@ -210,6 +210,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
 function GalleryImageInput({ value, onChange, onCrop }: { value: string[]; onChange: (v: string[]) => void; onCrop?: (url: string, index: number) => void }) {
   const [input, setInput] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const add = () => {
     const url = input.trim();
     if (url && !value.includes(url)) onChange([...value, url]);
@@ -220,6 +221,13 @@ function GalleryImageInput({ value, onChange, onCrop }: { value: string[]; onCha
     if (target < 0 || target >= value.length) return;
     const next = [...value];
     [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  };
+  const moveTo = (source: number, target: number) => {
+    if (source === target) return;
+    const next = [...value];
+    const [image] = next.splice(source, 1);
+    next.splice(target, 0, image);
     onChange(next);
   };
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,8 +259,18 @@ function GalleryImageInput({ value, onChange, onCrop }: { value: string[]; onCha
       <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>PNG, JPG, or WebP — up to 3 MB</span>
     </div>
     {value.length > 0 && <div className="space-y-2">
-      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>The first image is shown first in the public gallery. Use the arrows to change order; ✂️ to crop; × to remove.</p>
-      {value.map((url, index) => <div key={url} className="flex items-center gap-3 rounded-xl p-2" style={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}>
+      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>Drag an image by its handle to arrange the public slider quickly. The first image appears first; use ✂️ to crop or × to remove.</p>
+      {value.map((url, index) => <div
+        key={url}
+        draggable
+        onDragStart={(event) => { setDraggedIndex(index); event.dataTransfer.effectAllowed = "move"; }}
+        onDragEnd={() => setDraggedIndex(null)}
+        onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }}
+        onDrop={(event) => { event.preventDefault(); if (draggedIndex !== null) moveTo(draggedIndex, index); setDraggedIndex(null); }}
+        className="flex items-center gap-3 rounded-xl p-2 transition-all cursor-grab active:cursor-grabbing"
+        style={{ background: draggedIndex === index ? "hsl(var(--primary) / 0.10)" : "hsl(var(--background))", border: `1px solid ${draggedIndex === index ? "hsl(var(--primary))" : "hsl(var(--border))"}`, opacity: draggedIndex === index ? 0.55 : 1 }}
+      >
+        <GripVertical size={17} className="flex-shrink-0" style={{ color: "hsl(var(--muted-foreground))" }} aria-hidden="true" />
         <div className="relative w-16 h-11 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: "hsl(var(--muted))" }}>
           <img src={url} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
           <Image size={16} className="absolute opacity-40" />
