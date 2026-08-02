@@ -106,12 +106,23 @@ export default function AdminSkills() {
   }
 
   async function toggleVisible(skill: SkillRow) {
-    const row = await api.updateSkill(skill.id, { visible: !skill.visible });
-    setSkills((s) => s.map((x) => x.id === row.id ? row : x));
+    try {
+      const nextVisible = !skill.visible;
+      const row = await api.updateSkill(skill.id, { visible: nextVisible });
+      setSkills((s) => s.map((x) => (x.id === row.id ? row : x)));
+      toast({
+        title: nextVisible ? "Skill visible" : "Skill hidden",
+        description: nextVisible ? `"${skill.name}" is now shown on portfolio.` : `"${skill.name}" is hidden from public view.`,
+      });
+    } catch {
+      toast({ title: "Failed to update visibility", variant: "destructive" });
+    }
   }
 
-  // Group by category
-  const groups = skills.reduce<Record<string, SkillRow[]>>((acc, s) => {
+  // Filter out any blank skill rows and group by category
+  const validSkills = skills.filter((s) => s.name && s.name.trim() !== "");
+
+  const groups = validSkills.reduce<Record<string, SkillRow[]>>((acc, s) => {
     const k = s.category || "Other";
     (acc[k] ??= []).push(s);
     return acc;
@@ -122,7 +133,7 @@ export default function AdminSkills() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Skills</h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>{skills.length} skills</p>
+          <p className="text-sm mt-1" style={{ color: "hsl(var(--muted-foreground))" }}>{validSkills.length} skills</p>
         </div>
         {!creating && !editing && (
           <Button size="sm" onClick={() => setCreating(true)}><Plus size={14} className="mr-1" /> Add Skill</Button>
@@ -135,7 +146,7 @@ export default function AdminSkills() {
 
       {loading ? (
         <div className="space-y-2">{[1,2,3,4].map((i) => <div key={i} className="rounded-xl animate-pulse" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", height: "60px" }} />)}</div>
-      ) : skills.length === 0 && !creating ? (
+      ) : validSkills.length === 0 && !creating ? (
         <div className="rounded-xl p-10 text-center" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
           <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>No skills yet.</p>
         </div>
@@ -149,24 +160,27 @@ export default function AdminSkills() {
                   editing?.id === s.id ? (
                     <SkillForm key={s.id} initial={{ ...s }} onSave={handleUpdate} onCancel={() => setEditing(null)} saving={saving} />
                   ) : (
-                    <div key={s.id} className="rounded-xl px-4 py-3 flex items-center gap-3"
-                      style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", opacity: s.visible ? 1 : 0.5 }}>
+                    <div key={s.id} className="rounded-xl px-4 py-3 flex items-center gap-3 transition-opacity"
+                      style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", opacity: s.visible ? 1 : 0.65 }}>
                       {s.icon && <span className="text-lg flex-shrink-0">{s.icon}</span>}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-foreground">{s.name}</span>
+                          <span className="text-sm font-medium text-foreground truncate">{s.name}</span>
                           <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>{s.percentage}%</span>
+                          {!s.visible && (
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Hidden</span>
+                          )}
                         </div>
                         <div className="mt-1.5 h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--border))" }}>
-                          <div className="h-full rounded-full" style={{ width: `${s.percentage}%`, background: "hsl(var(--primary))" }} />
+                          <div className="h-full rounded-full" style={{ width: `${s.percentage}%`, background: s.visible ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }} />
                         </div>
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
-                        <Button variant="ghost" size="sm" onClick={() => toggleVisible(s)}>
-                          {s.visible ? <Eye size={13} /> : <EyeOff size={13} />}
+                        <Button variant="ghost" size="sm" onClick={() => toggleVisible(s)} title={s.visible ? "Hide on portfolio" : "Show on portfolio"}>
+                          {s.visible ? <Eye size={14} className="text-primary" /> : <EyeOff size={14} className="text-muted-foreground" />}
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => { setEditing(s); setCreating(false); }}><Pencil size={13} /></Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="text-destructive hover:text-destructive"><Trash2 size={13} /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => { setEditing(s); setCreating(false); }} title="Edit skill"><Pencil size={13} /></Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="text-destructive hover:text-destructive" title="Delete skill"><Trash2 size={13} /></Button>
                       </div>
                     </div>
                   )
