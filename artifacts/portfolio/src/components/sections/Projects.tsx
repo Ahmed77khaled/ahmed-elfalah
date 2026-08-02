@@ -357,18 +357,28 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
           >
             {/* Image Gallery Slider / Cover */}
             <div
-              className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group cursor-pointer"
+              className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group cursor-pointer bg-black/50"
               style={{
-                height: "260px",
+                height: "280px",
                 background: project.gradient,
                 border: "1px solid hsl(var(--border))",
               }}
               onClick={() => setLightboxOpen(true)}
             >
+              {currentImg && (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <img
+                    src={currentImg}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover filter blur-xl scale-125 opacity-40"
+                  />
+                </div>
+              )}
               <SafeImage
                 src={currentImg || ""}
                 alt={`${project.title} - ${activeImgIndex + 1}`}
-                className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                className="relative z-10 w-full h-full object-contain object-top transition-all duration-300 group-hover:scale-105"
               />
 
               {/* Fullscreen Expand / Zoom Button */}
@@ -557,13 +567,23 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
       >
         {/* Card header — visual */}
         <div
-          className="relative h-48 flex items-center justify-center overflow-hidden"
+          className="relative h-48 flex items-center justify-center overflow-hidden bg-black/40"
           style={{ background: project.gradient }}
         >
+          {project.coverImage && (
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <img
+                src={project.coverImage}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover filter blur-md scale-125 opacity-35"
+              />
+            </div>
+          )}
           <SafeImage
             src={project.coverImage || ""}
             alt={project.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="relative z-10 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
             style={{ background: "radial-gradient(circle at center, hsl(var(--primary) / 0.08) 0%, transparent 70%)" }}
