@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Languages, Menu, X } from "lucide-react";
+import { Download, Menu, X } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { cn } from "@workspace/fel7o-ds/lib/utils";
-import { useLanguage } from "@/context/LanguageContext";
 
 const navLinks = [
   { label: "About", href: "#about" },
@@ -18,7 +17,6 @@ const navLinks = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { language, toggleLanguage } = useLanguage();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -79,7 +77,6 @@ export function Navbar() {
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="outline" size="sm" onClick={toggleLanguage} aria-label="Toggle Arabic and English" data-testid="language-toggle"><Languages size={15} className="mr-1.5" />{language === "en" ? "AR" : "EN"}</Button>
           <Button variant="outline" size="sm" asChild><a href="/Ahmed_Khaled_Elfalah_FINAL_CV.pdf" target="_blank" rel="noopener noreferrer" download><Download size={14} className="mr-1.5" />Download CV</a></Button>
           <Button
             variant="default"
@@ -122,14 +119,6 @@ export function Navbar() {
                   {link.label}
                 </button>
               ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleLanguage}
-                className="w-full"
-              >
-                <Languages size={15} className="mr-2" />{language === "en" ? "العربية" : "English"}
-              </Button>
               <Button variant="outline" size="sm" asChild className="w-full"><a href="/Ahmed_Khaled_Elfalah_FINAL_CV.pdf" target="_blank" rel="noopener noreferrer" download><Download size={14} className="mr-2" />Download CV (PDF)</a></Button>
               <Button
                 variant="default"

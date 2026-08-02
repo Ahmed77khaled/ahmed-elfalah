@@ -14,7 +14,6 @@ import AdminSettings from '@/pages/admin/Settings';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute';
 import { VisitorTracker } from '@/components/VisitorTracker';
-import { LanguageProvider } from '@/context/LanguageContext';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 
 const queryClient = new QueryClient();
@@ -85,13 +84,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <LanguageProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
           <VisitorTracker />
           <Router />
         </WouterRouter>
         <Toaster />
-        </LanguageProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
