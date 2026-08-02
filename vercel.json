@@ -13,7 +13,7 @@
       "destination": "/api/index"
     },
     {
-      "source": "/:path((?!api(?:/|$)).*)",
+      "source": "/:path((?!api(?:/|$))[^.]+)",
       "destination": "/index.html"
     }
   ]
