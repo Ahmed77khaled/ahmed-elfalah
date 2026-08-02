@@ -123,7 +123,7 @@ async function sendTelegramNotification(text, botType = "messages") {
     ? (process.env.TELEGRAM_VISITORS_BOT_TOKEN || "8352050648:AAGLq-QTCZ-bxUNCDPVICq15n9XK6a71NpI")
     : (process.env.TELEGRAM_MESSAGES_BOT_TOKEN || "8790393178:AAEJKEMwituS7Exp9xmcDrLESF1_fUYqc8c");
 
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  const chatId = process.env.TELEGRAM_CHAT_ID || "8275645729";
   if (!token || !chatId) return;
 
   try {
