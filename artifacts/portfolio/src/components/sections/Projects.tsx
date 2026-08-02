@@ -203,7 +203,9 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
 
   const gallery = parseArray(project.galleryImages);
   const cover = project.coverImage?.trim();
-  const allImages = Array.from(new Set([cover, ...gallery].filter((url): url is string => Boolean(url && url.trim()))));
+  // Gallery order controls the public slider. The cover is only a fallback
+  // when no gallery photos were added, and otherwise appears after them.
+  const allImages = Array.from(new Set([...gallery, cover].filter((url): url is string => Boolean(url && url.trim()))));
 
   const nextImg = () => {
     if (allImages.length > 0) {
