@@ -506,7 +506,7 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
           <p className="text-sm mb-4" style={{ color: "hsl(var(--primary) / 0.7)" }}>
             {project.tagline}
           </p>
-          <p className="text-sm leading-relaxed mb-4 line-clamp-3" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p className="text-sm leading-relaxed mb-4 line-clamp-2" style={{ color: "hsl(var(--muted-foreground))" }}>
             {project.description}
           </p>
 

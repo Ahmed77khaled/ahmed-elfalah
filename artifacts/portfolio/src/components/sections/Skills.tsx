@@ -89,11 +89,13 @@ function SkillBar({ skill, inView }: { skill: Skill; inView: boolean }) {
     <div className="mb-4" data-testid={`skill-bar-${skill.name.toLowerCase().replace(/\s+/g, "-")}`}>
       <div className="flex justify-between items-center mb-1.5">
         <span className="text-sm font-medium text-foreground">{skill.name}</span>
-        <span className="text-xs font-mono" style={{ color: "hsl(var(--primary))" }}>
-          {inView ? `${skill.level}%` : "0%"}
-        </span>
+        {skill.level > 0 && (
+          <span className="text-xs font-mono" style={{ color: "hsl(var(--primary))" }}>
+            {inView ? `${skill.level}%` : "0%"}
+          </span>
+        )}
       </div>
-      <div
+      {skill.level > 0 && <div
         className="h-1.5 rounded-full overflow-hidden"
         style={{ background: "hsl(var(--border))" }}
       >
@@ -105,7 +107,7 @@ function SkillBar({ skill, inView }: { skill: Skill; inView: boolean }) {
             boxShadow: inView ? "0 0 8px hsl(var(--primary) / 0.5)" : "none",
           }}
         />
-      </div>
+      </div>}
     </div>
   );
 }

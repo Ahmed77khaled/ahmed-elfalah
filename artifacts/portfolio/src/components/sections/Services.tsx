@@ -149,7 +149,7 @@ export function Services() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
             <span className="text-sm font-mono uppercase tracking-widest" style={{ color: "hsl(var(--primary))" }}>
-              04. Services
+              05. Services
             </span>
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
           </div>

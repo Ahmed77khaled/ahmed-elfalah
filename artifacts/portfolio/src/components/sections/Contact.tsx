@@ -235,7 +235,7 @@ export function Contact() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
             <span className="text-sm font-mono uppercase tracking-widest" style={{ color: "hsl(var(--primary))" }}>
-              08. Contact
+              07. Contact
             </span>
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
           </div>
