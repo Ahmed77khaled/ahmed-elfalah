@@ -102,9 +102,10 @@ The following public assets are in `artifacts/portfolio/public/labs/ccna/`:
 - `ospf-adjacency.png` - OSPF neighbor and area configuration.
 - `vlan-topology.png` and `switch-topology.png` - switching/VLAN topology work.
 - `snmp-router-config.png` and `snmp-manager-agent.png` - SNMP configuration and manager-agent concepts.
+- `ip-configuration-check.png`, `subnetting-plan.png`, `connectivity-troubleshooting.png`, `snmp-lab-sketch.png`, `snmp-design-notes.png`, and `snmp-use-cases.png` - setup, calculation, troubleshooting, and SNMP learning evidence.
 - `ccna-lab-project.pkt` - downloadable Cisco Packet Tracer project file.
 
-The CMS project **CCNA Networking Labs** was inserted into the production database with those images in the intended order. Its gallery can be reordered at `/console/projects`: edit the project and use the up/down arrows under **Gallery Images**, then save.
+The CMS project **CCNA Networking Labs** was inserted into the production database with all 12 images in a learning-story order: setup → subnetting/VLAN/routing → SNMP → troubleshooting → successful validation. Its gallery can be reordered at `/console/projects`: edit the project and use the up/down arrows under **Gallery Images**, then save.
 
 ### Current Focus content (as of 2026-08-02)
 
