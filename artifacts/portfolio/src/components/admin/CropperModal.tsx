@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
-import { Check, RotateCcw, X } from "lucide-react";
+import { Check, FlipHorizontal, RotateCcw, RotateCw, X } from "lucide-react";
 import { api } from "@/lib/admin-api";
 import { toast } from "@workspace/fel7o-ds/hooks/use-toast";
 
@@ -31,6 +31,8 @@ export function CropperModal({ src, onSave, onClose }: Props) {
   const [ready, setReady] = useState(false);
   const [dragging, setDragging] = useState<HandleId | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [flipped, setFlipped] = useState(false);
   const dragRef = useRef<{ sx: number; sy: number; sb: Box } | null>(null);
 
   // ── Init on image load ─────────────────────────────────────────────────────
@@ -51,7 +53,11 @@ export function CropperModal({ src, onSave, onClose }: Props) {
     setReady(true);
   }, []);
 
-  const resetBox = () => setBox({ x: off.x, y: off.y, w: nat.w * scale, h: nat.h * scale });
+  const resetBox = () => {
+    setBox({ x: off.x, y: off.y, w: nat.w * scale, h: nat.h * scale });
+    setRotation(0);
+    setFlipped(false);
+  };
 
   // ── Clamp box within image bounds ──────────────────────────────────────────
   const clamp = useCallback((b: Box): Box => {
@@ -110,11 +116,15 @@ export function CropperModal({ src, onSave, onClose }: Props) {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = async () => {
+          const isQuarterTurn = Math.abs(rotation) % 180 === 90;
           const canvas = document.createElement("canvas");
-          canvas.width = realW;
-          canvas.height = realH;
+          canvas.width = isQuarterTurn ? realH : realW;
+          canvas.height = isQuarterTurn ? realW : realH;
           const ctx = canvas.getContext("2d")!;
-          ctx.drawImage(img, realX, realY, realW, realH, 0, 0, realW, realH);
+          ctx.translate(canvas.width / 2, canvas.height / 2);
+          ctx.rotate((rotation * Math.PI) / 180);
+          ctx.scale(flipped ? -1 : 1, 1);
+          ctx.drawImage(img, realX, realY, realW, realH, -realW / 2, -realH / 2, realW, realH);
           try {
             const blob = await new Promise<Blob>((res, rej) =>
               canvas.toBlob(b => b ? res(b) : rej(new Error("Blob failed")), "image/webp", 0.88)
@@ -192,7 +202,7 @@ export function CropperModal({ src, onSave, onClose }: Props) {
             crossOrigin="anonymous"
             referrerPolicy="no-referrer"
             className="absolute"
-            style={{ left: off.x, top: off.y, width: nat.w * scale, height: nat.h * scale, display: "block", userSelect: "none", pointerEvents: "none" }}
+            style={{ left: off.x, top: off.y, width: nat.w * scale, height: nat.h * scale, display: "block", userSelect: "none", pointerEvents: "none", transform: `rotate(${rotation}deg) scaleX(${flipped ? -1 : 1})`, transformOrigin: "center", transition: "transform 180ms ease" }}
             onLoad={(e) => { const i = e.currentTarget; initBox(i.naturalWidth, i.naturalHeight); }}
           />
 
@@ -261,16 +271,21 @@ export function CropperModal({ src, onSave, onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 border-t gap-3" style={{ borderColor: "hsl(var(--border))" }}>
-          <button
-            type="button"
-            className="flex items-center gap-1.5 text-sm transition-colors hover:text-foreground"
-            style={{ color: "hsl(var(--muted-foreground))" }}
-            onClick={resetBox}
-            disabled={!ready}
-          >
-            <RotateCcw size={13} /> Reset
-          </button>
+        <div className="flex flex-wrap items-center justify-between px-5 py-3 border-t gap-3" style={{ borderColor: "hsl(var(--border))" }}>
+          <div className="flex items-center gap-1">
+            <Button type="button" variant="ghost" size="sm" onClick={() => setRotation((value) => (value - 90 + 360) % 360)} disabled={!ready} title="Rotate left"><RotateCcw size={15} /></Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setRotation((value) => (value + 90) % 360)} disabled={!ready} title="Rotate right"><RotateCw size={15} /></Button>
+            <Button type="button" variant={flipped ? "secondary" : "ghost"} size="sm" onClick={() => setFlipped((value) => !value)} disabled={!ready} title="Flip horizontally"><FlipHorizontal size={15} /></Button>
+            <button
+              type="button"
+              className="ml-2 flex items-center gap-1.5 text-sm transition-colors hover:text-foreground"
+              style={{ color: "hsl(var(--muted-foreground))" }}
+              onClick={resetBox}
+              disabled={!ready}
+            >
+              Reset
+            </button>
+          </div>
           <div className="flex gap-2">
             <Button type="button" variant="outline" size="sm" onClick={onClose}>Cancel</Button>
             <Button type="button" size="sm" disabled={uploading || !ready} onClick={handleApply}>
