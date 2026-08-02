@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearch } from "wouter";
-import { Plus, Pencil, Trash2, Star, X, Check } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Star, Trash2, X } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { api, type ProjectRow, type ProjectPayload } from "@/lib/admin-api";
@@ -41,6 +41,41 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
       />
     </div>
   );
+}
+
+function GalleryImageInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
+  const [input, setInput] = useState("");
+  const add = () => {
+    const url = input.trim();
+    if (url && !value.includes(url)) onChange([...value, url]);
+    setInput("");
+  };
+  const move = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= value.length) return;
+    const next = [...value];
+    [next[index], next[target]] = [next[target], next[index]];
+    onChange(next);
+  };
+  return <div className="space-y-3">
+    <div className="flex gap-2">
+      <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder="Paste an image URL, then click Add" className={inputCls()} style={inputStyle()} />
+      <Button type="button" variant="outline" size="sm" onClick={add}>Add</Button>
+    </div>
+    {value.length > 0 && <div className="space-y-2">
+      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>The first image is shown first in the public gallery. Use the arrows to change the order.</p>
+      {value.map((url, index) => <div key={url} className="flex items-center gap-3 rounded-xl p-2" style={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}>
+        <div className="relative w-16 h-11 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: "hsl(var(--muted))" }}>
+          <img src={url} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+          <Image size={16} className="absolute opacity-40" />
+        </div>
+        <span className="text-xs font-mono flex-1 truncate" style={{ color: "hsl(var(--muted-foreground))" }}>{index + 1}. {url}</span>
+        <Button type="button" variant="ghost" size="sm" disabled={index === 0} onClick={() => move(index, -1)} aria-label="Move image up"><ArrowUp size={14} /></Button>
+        <Button type="button" variant="ghost" size="sm" disabled={index === value.length - 1} onClick={() => move(index, 1)} aria-label="Move image down"><ArrowDown size={14} /></Button>
+        <Button type="button" variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => onChange(value.filter((item) => item !== url))} aria-label="Remove image"><X size={14} /></Button>
+      </div>)}
+    </div>}
+  </div>;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -140,8 +175,8 @@ function ProjectForm({
         </Field>
       </div>
 
-      <Field label="Additional Gallery Images (Enter to add image URL)">
-        <TagInput value={form.galleryImages} onChange={(v) => set("galleryImages", v)} placeholder="Paste image URL and press Enter" />
+      <Field label="Gallery Images">
+        <GalleryImageInput value={form.galleryImages} onChange={(v) => set("galleryImages", v)} />
       </Field>
 
       <div className="flex items-center gap-2">

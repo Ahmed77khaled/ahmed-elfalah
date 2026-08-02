@@ -355,9 +355,9 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
               data-testid={`project-demo-${project.id}`}
               style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
             >
-              <a href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+              <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" download={project.demoUrl.endsWith(".pkt") || undefined}>
                 <ExternalLink size={14} className="mr-2" />
-                Live Demo
+                {project.demoUrl.endsWith(".pkt") ? "Download Lab File" : "Live Demo"}
               </a>
             </Button>
             <Button

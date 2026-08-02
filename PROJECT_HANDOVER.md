@@ -76,6 +76,8 @@ The page order is defined in `artifacts/portfolio/src/pages/Home.tsx`.
 - [x] Codeforces/ACPC live-data card removed at the owner’s request.
 - [x] AR/EN toggle and its incomplete language infrastructure removed at the owner’s request.
 - [x] Static PDF routing fixed on Vercel.
+- [x] CCNA Networking Labs project added to the CMS with documented Packet Tracer work and downloadable `.pkt` lab file.
+- [x] Admin project gallery now provides image previews plus move-up/move-down controls. The array order is the public gallery order.
 
 ### CV files
 
@@ -89,6 +91,19 @@ Both files exist in `artifacts/portfolio/public/` and are intentionally deployed
 The live legacy URL was verified to return `application/pdf` successfully:
 
 https://ahmed-elfalah.vercel.app/resume.pdf
+
+### CCNA evidence added on 2026-08-02
+
+The following public assets are in `artifacts/portfolio/public/labs/ccna/`:
+
+- `ccna-routing-switching-certificate.pdf` - CCNA Routing and Switching, 98%, 120 total hours (90 technical + 30 soft skills), dated 24 January to 18 February 2026.
+- `connectivity-validation.png` - successful Packet Tracer ICMP validation.
+- `ospf-adjacency.png` - OSPF neighbor and area configuration.
+- `vlan-topology.png` and `switch-topology.png` - switching/VLAN topology work.
+- `snmp-router-config.png` and `snmp-manager-agent.png` - SNMP configuration and manager-agent concepts.
+- `ccna-lab-project.pkt` - downloadable Cisco Packet Tracer project file.
+
+The CMS project **CCNA Networking Labs** was inserted into the production database with those images in the intended order. Its gallery can be reordered at `/console/projects`: edit the project and use the up/down arrows under **Gallery Images**, then save.
 
 ### Current Focus content (as of 2026-08-02)
 
