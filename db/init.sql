@@ -20,9 +20,20 @@ CREATE TABLE IF NOT EXISTS messages (
   id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, subject TEXT NOT NULL, message TEXT NOT NULL,
   read BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE TABLE IF NOT EXISTS settings (
+  CREATE TABLE IF NOT EXISTS settings (
   id SERIAL PRIMARY KEY, key TEXT NOT NULL UNIQUE, value TEXT NOT NULL DEFAULT '', updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+  );
+  CREATE TABLE IF NOT EXISTS reminders (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    due_date DATE NOT NULL,
+    notes TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'pending',
+    notified_before BOOLEAN NOT NULL DEFAULT FALSE,
+    notified_due BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    completed_at TIMESTAMPTZ
+  );
 
 -- Initial portfolio content. Existing rows are never overwritten.
 INSERT INTO projects (title, subtitle, short_description, long_description, cover_image, github_url, demo_url, tech_stack, features, category, status, featured, display_order)

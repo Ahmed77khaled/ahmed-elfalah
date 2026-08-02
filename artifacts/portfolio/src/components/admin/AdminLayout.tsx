@@ -6,6 +6,7 @@ import {
   Zap,
   Briefcase,
   MessageSquare,
+  BellRing,
   Settings,
   LogOut,
   Menu,
@@ -21,6 +22,7 @@ const NAV = [
   { href: "/console/skills", icon: Zap, label: "Skills" },
   { href: "/console/experience", icon: Briefcase, label: "Experience" },
   { href: "/console/messages", icon: MessageSquare, label: "Messages" },
+  { href: "/console/reminders", icon: BellRing, label: "Reminders" },
   { href: "/console/settings", icon: Settings, label: "Settings" },
 ];
 

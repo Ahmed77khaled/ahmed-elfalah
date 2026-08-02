@@ -66,6 +66,7 @@ const projectColumns = `id, title, subtitle, short_description AS "shortDescript
 const skillColumns = `id, name, icon, percentage, category, visible, display_order AS "displayOrder"`;
 const experienceColumns = `id, company, position, description, start_date AS "startDate", end_date AS "endDate", current_position AS "currentPosition", company_logo AS "companyLogo", display_order AS "displayOrder", created_at AS "createdAt"`;
 const messageColumns = `id, name, email, subject, message, read, created_at AS "createdAt"`;
+const reminderColumns = `id, title, TO_CHAR(due_date, 'YYYY-MM-DD') AS "dueDate", notes, status, notified_before AS "notifiedBefore", notified_due AS "notifiedDue", created_at AS "createdAt", completed_at AS "completedAt"`;
 
 async function saveProject(body, id) {
   const values = [body.title ?? "", body.subtitle ?? "", body.shortDescription ?? "", body.longDescription ?? "", body.coverImage ?? "", JSON.stringify(body.galleryImages ?? []), body.githubUrl ?? "", body.demoUrl ?? "", JSON.stringify(body.techStack ?? []), JSON.stringify(body.features ?? []), body.category ?? "", body.status ?? "published", body.featured ?? false, body.displayOrder ?? 0];
@@ -296,6 +297,57 @@ async function handleAdminStats(req, res) {
   } catch (error) { return sendDatabaseError(res, error); }
 }
 
+async function handleAdminReminders(req, res, id) {
+  if (!requireAdmin(req, res)) return;
+  try {
+    const body = req.body || {};
+    const values = [String(body.title || "").trim(), String(body.dueDate || "").trim(), String(body.notes || "").trim(), body.status === "completed" ? "completed" : "pending"];
+    if (req.method === "GET") return res.status(200).json({ success: true, data: (await query(`SELECT ${reminderColumns} FROM reminders ORDER BY due_date ASC, id ASC`)).rows });
+    if (req.method === "POST") {
+      if (!values[0] || !/^\d{4}-\d{2}-\d{2}$/.test(values[1])) return res.status(400).json({ error: "Title and a valid due date are required" });
+      const row = (await query(`INSERT INTO reminders (title,due_date,notes,status) VALUES ($1,$2,$3,$4) RETURNING ${reminderColumns}`, values)).rows[0];
+      return res.status(201).json({ success: true, data: row });
+    }
+    if (req.method === "PUT" && Number.isInteger(id)) {
+      if (!values[0] || !/^\d{4}-\d{2}-\d{2}$/.test(values[1])) return res.status(400).json({ error: "Title and a valid due date are required" });
+      const row = (await query(`UPDATE reminders SET title=$1,due_date=$2,notes=$3,status=$4,completed_at=CASE WHEN $4='completed' THEN COALESCE(completed_at,NOW()) ELSE NULL END WHERE id=$5 RETURNING ${reminderColumns}`, [...values, id])).rows[0];
+      return row ? res.status(200).json({ success: true, data: row }) : res.status(404).json({ error: "Reminder not found" });
+    }
+    if (req.method === "DELETE" && Number.isInteger(id)) { const row = (await query("DELETE FROM reminders WHERE id=$1 RETURNING id", [id])).rows[0]; return row ? res.status(200).json({ success: true, data: row }) : res.status(404).json({ error: "Reminder not found" }); }
+    return res.status(405).json({ error: "Method not allowed" });
+  } catch (error) { return sendDatabaseError(res, error); }
+}
+
+function cairoDate(offset = 0) {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  const get = (type) => parts.find((part) => part.type === type)?.value;
+  const date = new Date(Date.UTC(Number(get("year")), Number(get("month")) - 1, Number(get("day")) + offset));
+  return date.toISOString().slice(0, 10);
+}
+
+async function handleReminderCron(req, res) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || req.headers.authorization !== `Bearer ${secret}`) return res.status(401).json({ error: "Unauthorized" });
+  if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+  try {
+    const today = cairoDate();
+    const tomorrow = cairoDate(1);
+    const { rows } = await query(`SELECT ${reminderColumns} FROM reminders WHERE status='pending' AND ((due_date=$1 AND notified_due=false) OR (due_date=$2 AND notified_before=false))`, [today, tomorrow]);
+    const sent = [];
+    for (const reminder of rows) {
+      const dueToday = reminder.dueDate === today;
+      const flag = dueToday ? "notified_due" : "notified_before";
+      const updated = (await query(`UPDATE reminders SET ${flag}=true WHERE id=$1 AND ${flag}=false RETURNING id`, [reminder.id])).rows[0];
+      if (!updated) continue;
+      const timing = dueToday ? "is due today" : "is due tomorrow";
+      const text = `⏰ <b>Portfolio follow-up reminder</b>\n\n<b>${reminder.title}</b> ${timing}.\n\nNext steps:\n• Add certificate or completion proof\n• Add clear photos/screenshots\n• Add verification link or credential ID\n• Add labs/project outcomes\n${reminder.notes ? `\nNotes: ${reminder.notes}` : ""}`;
+      await Promise.allSettled([sendTelegramNotification(text, "messages")]);
+      sent.push(reminder.id);
+    }
+    return res.status(200).json({ success: true, checked: rows.length, sent });
+  } catch (error) { return sendDatabaseError(res, error); }
+}
+
 // ─── Main Router ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   if (setCors(req, res)) return;
@@ -325,6 +377,7 @@ export default async function handler(req, res) {
   if (path === "/api/experience") return handleExperience(req, res);
   if (path === "/api/messages") return handleMessages(req, res);
   if (path === "/api/track-visitor") return handleTrackVisitor(req, res);
+  if (path === "/api/cron/reminders") return handleReminderCron(req, res);
 
   // ── Auth routes ────────────────────────────────────────────────────────────
   if (path === "/api/auth/login") return handleAuthLogin(req, res);
@@ -351,6 +404,8 @@ export default async function handler(req, res) {
 
   if (path === "/api/admin/settings") return handleAdminSettings(req, res);
   if (path === "/api/admin/stats") return handleAdminStats(req, res);
+  const reminderMatch = path.match(/^\/api\/admin\/reminders(?:\/(\d+))?$/);
+  if (reminderMatch) return handleAdminReminders(req, res, reminderMatch[1] ? Number(reminderMatch[1]) : undefined);
 
   return res.status(404).json({ error: "Not found" });
 }

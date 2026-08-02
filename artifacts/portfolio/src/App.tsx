@@ -11,6 +11,7 @@ import AdminSkills from '@/pages/admin/Skills';
 import AdminExperience from '@/pages/admin/Experience';
 import AdminMessages from '@/pages/admin/Messages';
 import AdminSettings from '@/pages/admin/Settings';
+import AdminReminders from '@/pages/admin/Reminders';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { ProtectedRoute } from '@/components/admin/ProtectedRoute';
 import { VisitorTracker } from '@/components/VisitorTracker';
@@ -72,6 +73,11 @@ function Router() {
       <Route path="/console/settings">
         <ProtectedRoute>
           <AdminLayout><AdminSettings /></AdminLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/console/reminders">
+        <ProtectedRoute>
+          <AdminLayout><AdminReminders /></AdminLayout>
         </ProtectedRoute>
       </Route>
 

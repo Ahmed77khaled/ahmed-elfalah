@@ -78,6 +78,7 @@ The page order is defined in `artifacts/portfolio/src/pages/Home.tsx`.
 - [x] Static PDF routing fixed on Vercel.
 - [x] CCNA Networking Labs project added to the CMS with documented Packet Tracer work and downloadable `.pkt` lab file.
 - [x] Admin project gallery now provides image previews plus move-up/move-down controls. The array order is the public gallery order.
+- [x] Follow-up Reminders system: dashboard list, CRUD page, one-day-before/due-day Telegram reminders, and Vercel Cron automation.
 
 ### CV files
 
@@ -171,6 +172,16 @@ Admin endpoints are under `/api/admin/*` and need the configured JWT/session flo
 
 `api/index.js` has existing visitor/message notification behavior. Preserve the use of `await Promise.allSettled([...])` for notification fetches so the serverless invocation waits for those jobs before responding.
 
+### Follow-up reminders
+
+- Admin route: `/console/reminders`.
+- Add a title, exact due date, and optional notes for any training, certificate, project, or follow-up.
+- Dashboard shows the current pending reminder count and a short list.
+- Vercel Cron calls `/api/cron/reminders` daily at `06:00 UTC`. On the Hobby plan, Vercel may invoke it within that hour.
+- The cron endpoint sends Telegram once one day before the due date and once on the due date; the database flags prevent duplicates.
+- Add `CRON_SECRET` in Vercel as a random value of 16+ characters. Vercel sends it as a Bearer authorization header to the cron endpoint. Do not store its value in Git.
+- The initial reminder is **Electrical Training - completion follow-up** due 2026-08-06. Future courses with uncertain end dates should be added when an exact completion date is known.
+
 ### Required Vercel environment variable names
 
 The exact values are private and must exist only in Vercel/local ignored environment files.
@@ -182,6 +193,7 @@ The exact values are private and must exist only in Vercel/local ignored environ
 | `SESSION_SECRET` | JWT/session signing secret |
 | `CORS_ORIGIN` | Production domain |
 | `NODE_ENV` | `production` in production |
+| `CRON_SECRET` | Random 16+ character secret that secures Vercel Cron calls |
 
 ## 8. Local development and verification
 

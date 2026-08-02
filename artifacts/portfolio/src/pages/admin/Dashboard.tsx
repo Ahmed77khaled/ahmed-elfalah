@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import {
-  Activity,
   ArrowRight,
   Briefcase,
   CheckCircle2,
@@ -12,18 +11,19 @@ import {
   MessageSquare,
   Plus,
   Server,
-  Sparkles,
+  Sparkles, BellRing,
   Zap,
 } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
-import { api, validateSession, type DashboardStats, type MessageRow, type ProjectRow, type SkillRow } from "@/lib/admin-api";
+import { api, validateSession, type DashboardStats, type MessageRow, type ProjectRow, type ReminderRow, type SkillRow } from "@/lib/admin-api";
 
 interface DashboardData {
   stats: DashboardStats;
   projects: ProjectRow[];
   messages: MessageRow[];
   skills: SkillRow[];
+  reminders: ReminderRow[];
 }
 
 const cardStyle = { background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" };
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
     const load = async () => {
       setError("");
       const [dashboard, health, session] = await Promise.allSettled([
-        Promise.all([api.stats(), api.getProjects(), api.getMessages(), api.getSkills()]),
+        Promise.all([api.stats(), api.getProjects(), api.getMessages(), api.getSkills(), api.getReminders()]),
         api.health(),
         validateSession(),
       ]);
@@ -69,8 +69,8 @@ export default function AdminDashboard() {
       setAuthenticated(session.status === "fulfilled" ? session.value : false);
 
       if (dashboard.status === "fulfilled") {
-        const [stats, projects, messages, skills] = dashboard.value;
-        setData({ stats, projects, messages, skills });
+        const [stats, projects, messages, skills, reminders] = dashboard.value;
+        setData({ stats, projects, messages, skills, reminders });
       } else {
         setError("Failed to load dashboard data.");
       }
@@ -93,12 +93,14 @@ export default function AdminDashboard() {
   const draftProjects = data?.projects.filter((project) => project.status === "draft").length;
   const hiddenSkills = data?.skills.filter((skill) => !skill.visible).length;
   const pendingMessages = data?.messages.filter((message) => !message.read).length;
+  const pendingReminders = data?.reminders.filter((reminder) => reminder.status === "pending") ?? [];
 
   const statCards = data ? [
     { label: "Projects", value: data.stats.projects, icon: FolderKanban, href: "/console/projects" },
     { label: "Skills", value: data.stats.skills, icon: Zap, href: "/console/skills" },
     { label: "Experience", value: data.stats.experience, icon: Briefcase, href: "/console/experience" },
     { label: "Messages", value: data.stats.messages, icon: MessageSquare, href: "/console/messages", badge: data.stats.unreadMessages },
+    { label: "Reminders", value: pendingReminders.length, icon: BellRing, href: "/console/reminders", badge: pendingReminders.length },
   ] : [];
 
   return (
@@ -188,11 +190,8 @@ export default function AdminDashboard() {
         </section>
 
         <section className="rounded-xl p-5" style={cardStyle}>
-          <SectionHeader title="Recent Activity" />
-          <div className="mt-4 flex min-h-28 flex-col items-center justify-center text-center">
-            <Activity size={22} style={{ color: "hsl(var(--muted-foreground))" }} />
-            <p className="mt-3 text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Activity tracking is not available yet.</p>
-          </div>
+          <SectionHeader title="Follow-up reminders" action={<Button size="sm" variant="ghost" onClick={() => navigate("/console/reminders")}>Manage <ArrowRight size={14} className="ml-1" /></Button>} />
+          {!data ? <EmptyState>Loading reminders...</EmptyState> : pendingReminders.length === 0 ? <EmptyState>No pending reminders.</EmptyState> : <div className="mt-4 space-y-3">{pendingReminders.slice(0, 3).map((reminder) => <div key={reminder.id} className="flex items-center gap-3"><BellRing size={16} style={{ color: "hsl(var(--primary))" }} /><div className="min-w-0"><p className="truncate text-sm font-medium text-foreground">{reminder.title}</p><p className="text-xs text-muted-foreground">Due {reminder.dueDate}</p></div></div>)}</div>}
         </section>
 
         <section className="rounded-xl p-5" style={cardStyle}>

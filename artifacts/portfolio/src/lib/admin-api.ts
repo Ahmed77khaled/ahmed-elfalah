@@ -99,6 +99,12 @@ export const api = {
   getPublicSkills: () => request<SkillRow[]>("GET", "/skills"),
   getPublicExperience: () => request<ExperienceRow[]>("GET", "/experience"),
 
+  // Reminders
+  getReminders: () => request<ReminderRow[]>("GET", "/admin/reminders"),
+  createReminder: (data: ReminderPayload) => request<ReminderRow>("POST", "/admin/reminders", data),
+  updateReminder: (id: number, data: ReminderPayload) => request<ReminderRow>("PUT", `/admin/reminders/${id}`, data),
+  deleteReminder: (id: number) => request<{ id: number }>("DELETE", `/admin/reminders/${id}`),
+
   // Projects
   getProjects: () => request<ProjectRow[]>("GET", "/admin/projects"),
   createProject: (data: ProjectPayload) =>
@@ -140,6 +146,19 @@ export const api = {
 };
 
 export interface DashboardStats { projects: number; skills: number; experience: number; messages: number; unreadMessages: number; }
+
+export interface ReminderRow {
+  id: number;
+  title: string;
+  dueDate: string;
+  notes: string;
+  status: "pending" | "completed";
+  notifiedBefore: boolean;
+  notifiedDue: boolean;
+  createdAt: string;
+  completedAt: string | null;
+}
+export type ReminderPayload = Pick<ReminderRow, "title" | "dueDate" | "notes" | "status">;
 
 // Shared types (mirrors DB schema)
 export interface ProjectRow {
