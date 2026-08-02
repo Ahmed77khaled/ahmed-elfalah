@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { ExternalLink, Github, X, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ExternalLink, Github, X, Check, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@workspace/fel7o-ds/components/ui/dialog";
@@ -187,11 +187,129 @@ function parseArray(val: unknown): string[] {
   return [];
 }
 
+function ImageLightbox({
+  images,
+  currentIndex,
+  open,
+  onClose,
+  onIndexChange,
+  title,
+}: {
+  images: string[];
+  currentIndex: number;
+  open: boolean;
+  onClose: () => void;
+  onIndexChange: (idx: number) => void;
+  title: string;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        onIndexChange((currentIndex - 1 + images.length) % images.length);
+      } else if (e.key === "ArrowRight") {
+        onIndexChange((currentIndex + 1) % images.length);
+      } else if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, currentIndex, images.length, onIndexChange, onClose]);
+
+  if (!open || images.length === 0) return null;
+
+  const currentImg = images[currentIndex] || images[0];
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent
+        className="max-w-[95vw] w-full h-[92vh] p-0 border-none bg-black/95 text-white flex flex-col justify-between overflow-hidden shadow-2xl backdrop-blur-xl"
+        data-testid="image-lightbox"
+      >
+        {/* Lightbox Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/40 z-30 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold text-white/90">{title}</span>
+            {images.length > 1 && (
+              <span className="px-2.5 py-0.5 rounded-full bg-primary/20 text-primary text-xs font-mono font-bold">
+                {currentIndex + 1} / {images.length}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/80 hover:text-white cursor-pointer"
+            aria-label="Close Fullscreen View"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Lightbox Main Image Display */}
+        <div className="relative flex-1 flex items-center justify-center p-4 overflow-hidden select-none">
+          <SafeImage
+            src={currentImg}
+            alt={`${title} - ${currentIndex + 1}`}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-all duration-300"
+          />
+
+          {/* Nav Controls overlay */}
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => onIndexChange((currentIndex - 1 + images.length) % images.length)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/70 hover:bg-black/90 text-white hover:scale-110 border border-white/20 backdrop-blur-md transition-all shadow-2xl z-30 cursor-pointer"
+                aria-label="Previous Image"
+              >
+                <ChevronLeft size={24} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onIndexChange((currentIndex + 1) % images.length)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/70 hover:bg-black/90 text-white hover:scale-110 border border-white/20 backdrop-blur-md transition-all shadow-2xl z-30 cursor-pointer"
+                aria-label="Next Image"
+              >
+                <ChevronRight size={24} />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Lightbox Bottom Thumbnails Strip */}
+        {images.length > 1 && (
+          <div className="flex items-center justify-center gap-2 p-4 border-t border-white/10 bg-black/40 overflow-x-auto z-30 flex-shrink-0">
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => onIndexChange(idx)}
+                className={`relative rounded-md overflow-hidden border-2 transition-all flex-shrink-0 w-16 h-11 cursor-pointer ${
+                  idx === currentIndex
+                    ? "border-primary scale-110 shadow-lg"
+                    : "border-transparent opacity-50 hover:opacity-100"
+                }`}
+              >
+                <SafeImage src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ProjectModal({ project, open, onClose }: { project: Project | null; open: boolean; onClose: () => void }) {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     setActiveImgIndex(0);
+    setLightboxOpen(false);
   }, [project?.id]);
 
   if (!project) return null;
@@ -215,84 +333,109 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
   const currentImg = allImages[activeImgIndex] || allImages[0];
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent
-        className="max-w-3xl w-full p-0 gap-0 flex flex-col"
-        style={{ maxHeight: "88vh" }}
-        data-testid={`project-modal-${project.id}`}
-      >
-        {/* Sticky header — never scrolls away */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0" style={{ borderColor: "hsl(var(--border))" }}>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="text-xs">{project.category}</Badge>
-            <DialogTitle className="text-xl font-black">{project.title}</DialogTitle>
-          </div>
-          <p className="text-sm mt-1" style={{ color: "hsl(var(--primary))" }}>{project.tagline}</p>
-        </DialogHeader>
-
-        {/* Scrollable body — Lenis is prevented here */}
-        <div
-          className="overflow-y-auto flex-1 px-6 py-5"
-          data-lenis-prevent
-          style={{ overscrollBehavior: "contain" }}
+    <>
+      <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+        <DialogContent
+          className="max-w-3xl w-full p-0 gap-0 flex flex-col"
+          style={{ maxHeight: "88vh" }}
+          data-testid={`project-modal-${project.id}`}
         >
-          {/* Image Gallery Slider / Cover */}
+          {/* Sticky header — never scrolls away */}
+          <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0" style={{ borderColor: "hsl(var(--border))" }}>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-xs">{project.category}</Badge>
+              <DialogTitle className="text-xl font-black">{project.title}</DialogTitle>
+            </div>
+            <p className="text-sm mt-1" style={{ color: "hsl(var(--primary))" }}>{project.tagline}</p>
+          </DialogHeader>
+
+          {/* Scrollable body — Lenis is prevented here */}
           <div
-            className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group"
-            style={{
-              height: "260px",
-              background: project.gradient,
-              border: "1px solid hsl(var(--border))",
-            }}
+            className="overflow-y-auto flex-1 px-6 py-5"
+            data-lenis-prevent
+            style={{ overscrollBehavior: "contain" }}
           >
-            <SafeImage
-              src={currentImg || ""}
-              alt={`${project.title} - ${activeImgIndex + 1}`}
-              className="w-full h-full object-cover transition-all duration-300"
-            />
+            {/* Image Gallery Slider / Cover */}
+            <div
+              className="rounded-xl w-full overflow-hidden flex items-center justify-center relative group cursor-pointer"
+              style={{
+                height: "260px",
+                background: project.gradient,
+                border: "1px solid hsl(var(--border))",
+              }}
+              onClick={() => setLightboxOpen(true)}
+            >
+              <SafeImage
+                src={currentImg || ""}
+                alt={`${project.title} - ${activeImgIndex + 1}`}
+                className="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+              />
 
-            {/* Navigation Arrows if multiple images */}
-            {allImages.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={prevImg}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 text-white hover:bg-black/90 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-xl cursor-pointer"
-                  aria-label="Previous Image"
-                >
-                  <ChevronLeft size={20} />
-                </button>
-                <button
-                  type="button"
-                  onClick={nextImg}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 text-white hover:bg-black/90 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-xl cursor-pointer"
-                  aria-label="Next Image"
-                >
-                  <ChevronRight size={20} />
-                </button>
+              {/* Fullscreen Expand / Zoom Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxOpen(true);
+                }}
+                className="absolute top-3 right-3 p-2 rounded-full bg-black/75 text-white hover:bg-black/95 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-md cursor-pointer flex items-center gap-1.5 px-3"
+                title="Expand Fullscreen"
+              >
+                <Maximize2 size={13} />
+                <span className="text-xs font-semibold">Enlarge</span>
+              </button>
 
-                {/* Counter indicator */}
-                <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 text-white text-xs font-bold border border-white/20 backdrop-blur-md z-20 shadow-md">
-                  {activeImgIndex + 1} / {allImages.length}
-                </div>
+              {/* Navigation Arrows if multiple images */}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImg();
+                    }}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 text-white hover:bg-black/90 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-xl cursor-pointer"
+                    aria-label="Previous Image"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImg();
+                    }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 text-white hover:bg-black/90 hover:scale-110 transition-all border border-white/20 backdrop-blur-md z-20 shadow-xl cursor-pointer"
+                    aria-label="Next Image"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
 
-                {/* Navigation Dots */}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 border border-white/20 backdrop-blur-md z-20 shadow-md">
-                  {allImages.map((_, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setActiveImgIndex(idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${
-                        idx === activeImgIndex ? "w-6 bg-primary" : "w-2 bg-white/50 hover:bg-white"
-                      }`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+                  {/* Counter indicator */}
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/70 text-white text-xs font-bold border border-white/20 backdrop-blur-md z-20 shadow-md">
+                    {activeImgIndex + 1} / {allImages.length}
+                  </div>
+
+                  {/* Navigation Dots */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/70 border border-white/20 backdrop-blur-md z-20 shadow-md">
+                    {allImages.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveImgIndex(idx);
+                        }}
+                        className={`h-2 rounded-full transition-all cursor-pointer ${
+                          idx === activeImgIndex ? "w-6 bg-primary" : "w-2 bg-white/50 hover:bg-white"
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
           {/* Thumbnail Strip */}
           {allImages.length > 1 && (
@@ -374,6 +517,16 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
         </div>
       </DialogContent>
     </Dialog>
+
+    <ImageLightbox
+      images={allImages}
+      currentIndex={activeImgIndex}
+      open={lightboxOpen}
+      onClose={() => setLightboxOpen(false)}
+      onIndexChange={setActiveImgIndex}
+      title={project.title}
+    />
+  </>
   );
 }
 
