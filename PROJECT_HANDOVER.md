@@ -105,7 +105,9 @@ The following public assets are in `artifacts/portfolio/public/labs/ccna/`:
 - `ip-configuration-check.png`, `subnetting-plan.png`, `connectivity-troubleshooting.png`, `snmp-lab-sketch.png`, `snmp-design-notes.png`, and `snmp-use-cases.png` - setup, calculation, troubleshooting, and SNMP learning evidence.
 - `ccna-lab-project.pkt` - downloadable Cisco Packet Tracer project file.
 
-The CMS project **CCNA Networking Labs** was inserted into the production database with all 12 images in a learning-story order: setup → subnetting/VLAN/routing → SNMP → troubleshooting → successful validation. Its gallery can be reordered at `/console/projects`: edit the project and use the up/down arrows under **Gallery Images**, then save.
+Six authentic training photos were added on 2026-08-02 from `D:\fel7o tech\CCNA\gallery\New folder`: hands-on laptop work, presentation, classroom, training-room, and NTI group/event photos. The project cover is now `hands-on-networking-training.jpg`.
+
+The CMS project **CCNA Networking Labs** now has 18 images in a deliberate order: authentic personal/training evidence → setup → subnetting/VLAN/routing → SNMP → troubleshooting → successful validation. Its gallery can be reordered at `/console/projects`: edit the project and use the up/down arrows under **Gallery Images**, then save.
 
 ### Current Focus content (as of 2026-08-02)
 
