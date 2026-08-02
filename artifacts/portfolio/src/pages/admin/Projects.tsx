@@ -44,26 +44,39 @@ function FocalPointPicker({ coverImage, value, onChange, onCrop }: { coverImage:
 
   return (
     <div className="space-y-3">
-      {/* Live Preview — click anywhere to set focal point */}
+      {/* Live Preview — 100% pixel-matched to public card (h-48 = 192px) */}
       {coverImage ? (
         <div
           ref={imgRef}
-          className="relative rounded-xl overflow-hidden cursor-crosshair select-none group"
-          style={{ height: "200px", border: "2px solid hsl(var(--primary) / 0.4)" }}
+          className="relative h-48 rounded-xl overflow-hidden cursor-crosshair select-none group border shadow-md bg-black/40"
+          style={{ borderColor: "hsl(var(--primary) / 0.5)" }}
           onClick={handleImageClick}
           title="Click anywhere on the image to set the focal point"
         >
+          {/* Blurred backdrop layer (matches public site card) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <img
+              src={coverImage}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover filter blur-md scale-125 opacity-35"
+              style={{ objectPosition: value }}
+            />
+          </div>
+
+          {/* Main cover image */}
           <img
             src={coverImage}
             alt="focal point preview"
             referrerPolicy="no-referrer"
             draggable={false}
-            className="w-full h-full object-cover pointer-events-none"
+            className="relative z-10 w-full h-full object-cover pointer-events-none"
             style={{ objectPosition: value }}
           />
+
           {/* Crosshair dot */}
           <div
-            className="absolute w-5 h-5 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 transition-all duration-150"
+            className="absolute w-5 h-5 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20 transition-all duration-150"
             style={{
               left: parts[0] ?? "50%",
               top: parts[1] ?? "50%",
@@ -71,22 +84,25 @@ function FocalPointPicker({ coverImage, value, onChange, onCrop }: { coverImage:
               boxShadow: "0 0 0 2px rgba(0,0,0,0.6), 0 0 14px hsl(var(--primary) / 0.7)",
             }}
           />
+
           {/* Hint overlay */}
-          <div className="absolute top-2 left-2 text-xs bg-black/70 text-white px-2.5 py-1 rounded-full z-10 backdrop-blur-sm flex items-center gap-1">
-            <span>👆</span> Click to set focus
+          <div className="absolute top-2 left-2 text-xs bg-black/75 text-white px-2.5 py-1 rounded-full z-20 backdrop-blur-sm flex items-center gap-1">
+            <span>👆</span> Click to set focus (Card View)
           </div>
+
           {/* Crop button */}
           {onCrop && (
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onCrop(); }}
-              className="absolute top-2 right-2 px-2.5 py-1 text-xs font-medium rounded-full bg-black/75 hover:bg-black/95 text-white z-20 backdrop-blur-sm border border-white/20 flex items-center gap-1.5 transition-all shadow-md"
-              title="Crop this cover image"
+              className="absolute top-2 right-2 px-3 py-1 text-xs font-semibold rounded-full bg-primary text-primary-foreground z-30 shadow-lg flex items-center gap-1.5 transition-all hover:scale-105"
+              title="Crop and crop-to-fit this image"
             >
-              <Scissors size={12} /> Crop & Frame
+              <Scissors size={13} /> ✂️ Crop & Frame
             </button>
           )}
-          <div className="absolute bottom-2 right-2 text-xs font-mono bg-black/70 text-white px-2 py-0.5 rounded-full z-10">{value}</div>
+
+          <div className="absolute bottom-2 right-2 text-xs font-mono bg-black/80 text-white px-2.5 py-0.5 rounded-full z-20 border border-white/10">{value}</div>
         </div>
       ) : (
         <div className="rounded-xl flex items-center justify-center text-sm" style={{ height: "120px", border: "2px dashed hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
