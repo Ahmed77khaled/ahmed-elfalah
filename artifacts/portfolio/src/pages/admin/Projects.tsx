@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearch } from "wouter";
-import { ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Star, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Image, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { Badge } from "@workspace/fel7o-ds/components/ui/badge";
 import { api, type ProjectRow, type ProjectPayload } from "@/lib/admin-api";
@@ -8,10 +8,90 @@ import { toast } from "@workspace/fel7o-ds/hooks/use-toast";
 
 const EMPTY: ProjectPayload = {
   title: "", subtitle: "", shortDescription: "", longDescription: "",
-  coverImage: "", galleryImages: [], githubUrl: "", demoUrl: "",
+  coverImage: "", coverImagePosition: "center center", galleryImages: [], githubUrl: "", demoUrl: "",
   techStack: [], features: [], category: "", status: "published",
   featured: false, displayOrder: 0,
 };
+
+// ── Focal Point Picker ───────────────────────────────────────────────────────
+const GRID_POINTS = [
+  { label: "Top Left",     value: "0% 0%" },
+  { label: "Top Center",   value: "50% 0%" },
+  { label: "Top Right",    value: "100% 0%" },
+  { label: "Left",         value: "0% 50%" },
+  { label: "Center",       value: "50% 50%" },
+  { label: "Right",        value: "100% 50%" },
+  { label: "Bottom Left",  value: "0% 100%" },
+  { label: "Bottom",       value: "50% 100%" },
+  { label: "Bottom Right", value: "100% 100%" },
+];
+
+function FocalPointPicker({ coverImage, value, onChange }: { coverImage: string; value: string; onChange: (v: string) => void }) {
+  const parts = value.split(" ");
+  const xNum = parseInt(parts[0] ?? "50", 10);
+  const yNum = parseInt(parts[1] ?? "50", 10);
+  const setXY = (x: number, y: number) => onChange(`${x}% ${y}%`);
+
+  return (
+    <div className="space-y-3">
+      {/* Live Preview */}
+      {coverImage && (
+        <div className="relative rounded-xl overflow-hidden border" style={{ height: "160px", border: "1px solid hsl(var(--border))" }}>
+          <img
+            src={coverImage}
+            alt="focal point preview"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: value }}
+          />
+          {/* Crosshair dot */}
+          <div
+            className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+            style={{
+              left: parts[0] ?? "50%",
+              top: parts[1] ?? "50%",
+              background: "hsl(var(--primary))",
+              boxShadow: "0 0 0 2px rgba(0,0,0,0.5), 0 0 12px hsl(var(--primary) / 0.6)",
+            }}
+          />
+          <div className="absolute bottom-2 right-2 text-xs font-mono bg-black/70 text-white px-2 py-0.5 rounded-full z-10">{value}</div>
+        </div>
+      )}
+
+      {/* 3×3 Quick Grid */}
+      <div className="grid grid-cols-3 gap-1.5">
+        {GRID_POINTS.map((pt) => (
+          <button
+            key={pt.value}
+            type="button"
+            onClick={() => onChange(pt.value)}
+            title={pt.label}
+            className="py-2 text-xs rounded-lg border transition-all font-medium"
+            style={{
+              background: value === pt.value ? "hsl(var(--primary) / 0.12)" : "hsl(var(--background))",
+              borderColor: value === pt.value ? "hsl(var(--primary))" : "hsl(var(--border))",
+              color: value === pt.value ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))",
+            }}
+          >
+            {pt.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Fine-tune X / Y sliders */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label className="text-xs font-medium" style={{ color: "hsl(var(--muted-foreground))" }}>Horizontal (X): {xNum}%</label>
+          <input type="range" min={0} max={100} value={xNum} onChange={(e) => setXY(Number(e.target.value), yNum)} className="w-full cursor-pointer" style={{ accentColor: "hsl(var(--primary))" }} />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium" style={{ color: "hsl(var(--muted-foreground))" }}>Vertical (Y): {yNum}%</label>
+          <input type="range" min={0} max={100} value={yNum} onChange={(e) => setXY(xNum, Number(e.target.value))} className="w-full cursor-pointer" style={{ accentColor: "hsl(var(--primary))" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function TagInput({ value, onChange, placeholder }: { value: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
   const [input, setInput] = useState("");
@@ -45,6 +125,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
 
 function GalleryImageInput({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
   const [input, setInput] = useState("");
+  const [uploading, setUploading] = useState(false);
   const add = () => {
     const url = input.trim();
     if (url && !value.includes(url)) onChange([...value, url]);
@@ -57,13 +138,36 @@ function GalleryImageInput({ value, onChange }: { value: string[]; onChange: (v:
     [next[index], next[target]] = [next[target], next[index]];
     onChange(next);
   };
+  const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const media = await api.uploadMedia(file);
+      if (!value.includes(media.url)) onChange([...value, media.url]);
+      toast({ title: "Image uploaded", description: "It was added to the end of this gallery." });
+    } catch (error) {
+      toast({ title: "Upload failed", description: error instanceof Error ? error.message : "Try another image.", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
   return <div className="space-y-3">
     <div className="flex gap-2">
       <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }} placeholder="Paste an image URL, then click Add" className={inputCls()} style={inputStyle()} />
       <Button type="button" variant="outline" size="sm" onClick={add}>Add</Button>
     </div>
+    <div className="flex items-center gap-3">
+      <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors hover:bg-accent" style={{ borderColor: "hsl(var(--border))" }}>
+        <Upload size={15} />
+        {uploading ? "Uploading…" : "Upload from computer"}
+        <input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={upload} disabled={uploading} />
+      </label>
+      <span className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>PNG, JPG, or WebP — up to 3 MB</span>
+    </div>
     {value.length > 0 && <div className="space-y-2">
-      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>The first image is shown first in the public gallery. Use the arrows to change the order.</p>
+      <p className="text-xs" style={{ color: "hsl(var(--muted-foreground))" }}>The first image is shown first in the public gallery. Use the arrows to change the order; the × button removes an image from this gallery.</p>
       {value.map((url, index) => <div key={url} className="flex items-center gap-3 rounded-xl p-2" style={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))" }}>
         <div className="relative w-16 h-11 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ background: "hsl(var(--muted))" }}>
           <img src={url} alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover" onError={(event) => { event.currentTarget.style.display = "none"; }} />
@@ -174,6 +278,14 @@ function ProjectForm({
             onChange={(e) => set("displayOrder", Number(e.target.value))} />
         </Field>
       </div>
+
+      <Field label="Cover Image — Focal Point (which part of the image to show)">
+        <FocalPointPicker
+          coverImage={form.coverImage}
+          value={form.coverImagePosition ?? "center center"}
+          onChange={(v) => set("coverImagePosition", v)}
+        />
+      </Field>
 
       <Field label="Gallery Images">
         <GalleryImageInput value={form.galleryImages} onChange={(v) => set("galleryImages", v)} />

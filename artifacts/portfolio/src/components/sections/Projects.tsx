@@ -18,6 +18,7 @@ interface Project {
   demoUrl: string;
   githubUrl: string;
   coverImage?: string;
+  coverImagePosition?: string;
   galleryImages?: string[];
 }
 
@@ -146,7 +147,7 @@ function use3DTilt() {
   return { handleMouseMove, handleMouseLeave };
 }
 
-function SafeImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+function SafeImage({ src, alt, className, style }: { src: string; alt: string; className?: string; style?: React.CSSProperties }) {
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -171,6 +172,7 @@ function SafeImage({ src, alt, className }: { src: string; alt: string; classNam
       referrerPolicy="no-referrer"
       loading="lazy"
       className={className}
+      style={style}
       onError={() => setError(true)}
     />
   );
@@ -577,13 +579,15 @@ function ProjectCard({ project, index, onClick }: { project: Project; index: num
                 alt=""
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover filter blur-md scale-125 opacity-35"
+                style={{ objectPosition: project.coverImagePosition || "center center" }}
               />
             </div>
           )}
           <SafeImage
             src={project.coverImage || ""}
             alt={project.title}
-            className="relative z-10 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+            className="relative z-10 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            style={{ objectPosition: project.coverImagePosition || "center center" }}
           />
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
             style={{ background: "radial-gradient(circle at center, hsl(var(--primary) / 0.08) 0%, transparent 70%)" }}
@@ -650,6 +654,7 @@ export function Projects() {
     category: project.category, gradient: "linear-gradient(135deg, hsl(190 100% 50% / 0.15), hsl(262 83% 57% / 0.1))",
     demoUrl: project.demoUrl || "#", githubUrl: project.githubUrl || "#",
     coverImage: project.coverImage,
+    coverImagePosition: project.coverImagePosition || "center center",
     galleryImages: parseArray(project.galleryImages),
   }));
   const categories = ["All", "IoT & Embedded", "AI & Security", "Engineering", "Web Development"];

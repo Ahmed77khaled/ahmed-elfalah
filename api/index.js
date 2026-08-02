@@ -62,16 +62,17 @@ function requireAdmin(req, res) {
 }
 
 // ─── CMS Columns ─────────────────────────────────────────────────────────────
-const projectColumns = `id, title, subtitle, short_description AS "shortDescription", long_description AS "longDescription", cover_image AS "coverImage", gallery_images AS "galleryImages", github_url AS "githubUrl", demo_url AS "demoUrl", tech_stack AS "techStack", features, category, status, featured, display_order AS "displayOrder", created_at AS "createdAt", updated_at AS "updatedAt"`;
+const projectColumns = `id, title, subtitle, short_description AS "shortDescription", long_description AS "longDescription", cover_image AS "coverImage", cover_image_position AS "coverImagePosition", gallery_images AS "galleryImages", github_url AS "githubUrl", demo_url AS "demoUrl", tech_stack AS "techStack", features, category, status, featured, display_order AS "displayOrder", created_at AS "createdAt", updated_at AS "updatedAt"`;
 const skillColumns = `id, name, icon, percentage, category, visible, display_order AS "displayOrder"`;
 const experienceColumns = `id, company, position, description, start_date AS "startDate", end_date AS "endDate", current_position AS "currentPosition", company_logo AS "companyLogo", display_order AS "displayOrder", created_at AS "createdAt"`;
 const messageColumns = `id, name, email, subject, message, read, created_at AS "createdAt"`;
 const reminderColumns = `id, title, TO_CHAR(due_date, 'YYYY-MM-DD') AS "dueDate", notes, status, notified_before AS "notifiedBefore", notified_due AS "notifiedDue", created_at AS "createdAt", completed_at AS "completedAt"`;
+const mediaColumns = `id, filename, mime_type AS "mimeType", created_at AS "createdAt"`;
 
 async function saveProject(body, id) {
-  const values = [body.title ?? "", body.subtitle ?? "", body.shortDescription ?? "", body.longDescription ?? "", body.coverImage ?? "", JSON.stringify(body.galleryImages ?? []), body.githubUrl ?? "", body.demoUrl ?? "", JSON.stringify(body.techStack ?? []), JSON.stringify(body.features ?? []), body.category ?? "", body.status ?? "published", body.featured ?? false, body.displayOrder ?? 0];
-  if (!id) return query(`INSERT INTO projects (title,subtitle,short_description,long_description,cover_image,gallery_images,github_url,demo_url,tech_stack,features,category,status,featured,display_order) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9::jsonb,$10::jsonb,$11,$12,$13,$14) RETURNING ${projectColumns}`, values);
-  return query(`UPDATE projects SET title=$1,subtitle=$2,short_description=$3,long_description=$4,cover_image=$5,gallery_images=$6::jsonb,github_url=$7,demo_url=$8,tech_stack=$9::jsonb,features=$10::jsonb,category=$11,status=$12,featured=$13,display_order=$14,updated_at=NOW() WHERE id=$15 RETURNING ${projectColumns}`, [...values, id]);
+  const values = [body.title ?? "", body.subtitle ?? "", body.shortDescription ?? "", body.longDescription ?? "", body.coverImage ?? "", body.coverImagePosition ?? "center center", JSON.stringify(body.galleryImages ?? []), body.githubUrl ?? "", body.demoUrl ?? "", JSON.stringify(body.techStack ?? []), JSON.stringify(body.features ?? []), body.category ?? "", body.status ?? "published", body.featured ?? false, body.displayOrder ?? 0];
+  if (!id) return query(`INSERT INTO projects (title,subtitle,short_description,long_description,cover_image,cover_image_position,gallery_images,github_url,demo_url,tech_stack,features,category,status,featured,display_order) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10::jsonb,$11::jsonb,$12,$13,$14,$15) RETURNING ${projectColumns}`, values);
+  return query(`UPDATE projects SET title=$1,subtitle=$2,short_description=$3,long_description=$4,cover_image=$5,cover_image_position=$6,gallery_images=$7::jsonb,github_url=$8,demo_url=$9,tech_stack=$10::jsonb,features=$11::jsonb,category=$12,status=$13,featured=$14,display_order=$15,updated_at=NOW() WHERE id=$16 RETURNING ${projectColumns}`, [...values, id]);
 }
 
 // ─── CORS Helper ──────────────────────────────────────────────────────────────
@@ -348,6 +349,34 @@ async function handleReminderCron(req, res) {
   } catch (error) { return sendDatabaseError(res, error); }
 }
 
+async function handlePublicMedia(req, res, id) {
+  if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+  try {
+    const row = (await query("SELECT mime_type, bytes FROM media WHERE id=$1", [id])).rows[0];
+    if (!row) return res.status(404).end();
+    res.setHeader("Content-Type", row.mime_type);
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+    return res.status(200).send(row.bytes);
+  } catch (error) { return sendDatabaseError(res, error); }
+}
+
+async function handleAdminMedia(req, res, id) {
+  if (!requireAdmin(req, res)) return;
+  try {
+    if (req.method === "POST") {
+      const { filename = "image", dataUrl = "" } = req.body || {};
+      const match = typeof dataUrl === "string" && dataUrl.match(/^data:(image\/(?:png|jpe?g|webp));base64,([A-Za-z0-9+/=]+)$/i);
+      if (!match) return res.status(400).json({ error: "Upload a PNG, JPG, or WebP image" });
+      const bytes = Buffer.from(match[2], "base64");
+      if (bytes.length > 3 * 1024 * 1024) return res.status(413).json({ error: "Image must be 3 MB or smaller" });
+      const row = (await query(`INSERT INTO media (filename,mime_type,bytes) VALUES ($1,$2,$3) RETURNING ${mediaColumns}`, [String(filename).slice(0, 180), match[1].toLowerCase(), bytes])).rows[0];
+      return res.status(201).json({ success: true, data: { ...row, url: `/api/media/${row.id}` } });
+    }
+    if (req.method === "DELETE" && Number.isInteger(id)) { const row = (await query("DELETE FROM media WHERE id=$1 RETURNING id", [id])).rows[0]; return row ? res.status(200).json({ success: true, data: row }) : res.status(404).json({ error: "Media not found" }); }
+    return res.status(405).json({ error: "Method not allowed" });
+  } catch (error) { return sendDatabaseError(res, error); }
+}
+
 // ─── Main Router ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   if (setCors(req, res)) return;
@@ -378,6 +407,8 @@ export default async function handler(req, res) {
   if (path === "/api/messages") return handleMessages(req, res);
   if (path === "/api/track-visitor") return handleTrackVisitor(req, res);
   if (path === "/api/cron/reminders") return handleReminderCron(req, res);
+  const publicMediaMatch = path.match(/^\/api\/media\/(\d+)$/);
+  if (publicMediaMatch) return handlePublicMedia(req, res, Number(publicMediaMatch[1]));
 
   // ── Auth routes ────────────────────────────────────────────────────────────
   if (path === "/api/auth/login") return handleAuthLogin(req, res);
@@ -406,6 +437,8 @@ export default async function handler(req, res) {
   if (path === "/api/admin/stats") return handleAdminStats(req, res);
   const reminderMatch = path.match(/^\/api\/admin\/reminders(?:\/(\d+))?$/);
   if (reminderMatch) return handleAdminReminders(req, res, reminderMatch[1] ? Number(reminderMatch[1]) : undefined);
+  const mediaMatch = path.match(/^\/api\/admin\/media(?:\/(\d+))?$/);
+  if (mediaMatch) return handleAdminMedia(req, res, mediaMatch[1] ? Number(mediaMatch[1]) : undefined);
 
   return res.status(404).json({ error: "Not found" });
 }

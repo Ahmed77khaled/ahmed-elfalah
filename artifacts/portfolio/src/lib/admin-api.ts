@@ -114,6 +114,21 @@ export const api = {
   deleteProject: (id: number) =>
     request<{ id: number }>("DELETE", `/admin/projects/${id}`),
 
+  // Gallery media
+  uploadMedia: async (file: File): Promise<MediaUpload> => {
+    const supported = ["image/png", "image/jpeg", "image/webp"];
+    if (!supported.includes(file.type)) throw new Error("Use a PNG, JPG, or WebP image");
+    if (file.size > 3 * 1024 * 1024) throw new Error("Image must be 3 MB or smaller");
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read image"));
+      reader.onload = () => resolve(String(reader.result));
+      reader.readAsDataURL(file);
+    });
+    return request<MediaUpload>("POST", "/admin/media", { filename: file.name, dataUrl });
+  },
+  deleteMedia: (id: number) => request<{ id: number }>("DELETE", `/admin/media/${id}`),
+
   // Skills
   getSkills: () => request<SkillRow[]>("GET", "/admin/skills"),
   createSkill: (data: SkillPayload) =>
@@ -147,6 +162,14 @@ export const api = {
 
 export interface DashboardStats { projects: number; skills: number; experience: number; messages: number; unreadMessages: number; }
 
+export interface MediaUpload {
+  id: number;
+  filename: string;
+  mimeType: string;
+  createdAt: string;
+  url: string;
+}
+
 export interface ReminderRow {
   id: number;
   title: string;
@@ -168,6 +191,7 @@ export interface ProjectRow {
   shortDescription: string;
   longDescription: string;
   coverImage: string;
+  coverImagePosition: string;
   galleryImages: string[];
   githubUrl: string;
   demoUrl: string;
