@@ -29,8 +29,17 @@ const GRID_POINTS = [
 
 function FocalPointPicker({ coverImage, value, onChange, onCrop }: { coverImage: string; value: string; onChange: (v: string) => void; onCrop?: () => void }) {
   const parts = value.split(" ");
-  const xNum = parseInt(parts[0] ?? "50", 10);
-  const yNum = parseInt(parts[1] ?? "50", 10);
+  const positionValue = (part: string | undefined, axis: "x" | "y") => {
+    const fallback = 50;
+    if (!part) return fallback;
+    const parsed = Number.parseInt(part, 10);
+    if (!Number.isNaN(parsed)) return parsed;
+    if (part === "left" || part === "top") return 0;
+    if (part === "right" || part === "bottom") return 100;
+    return axis === "x" || part === "center" ? 50 : fallback;
+  };
+  const xNum = positionValue(parts[0], "x");
+  const yNum = positionValue(parts[1], "y");
   const setXY = (x: number, y: number) => onChange(`${x}% ${y}%`);
   const imgRef = useRef<HTMLDivElement>(null);
 
@@ -207,7 +216,7 @@ function TagInput({ value, onChange, placeholder }: { value: string[]; onChange:
   );
 }
 
-function GalleryImageInput({ value, onChange, onCrop }: { value: string[]; onChange: (v: string[]) => void; onCrop?: (url: string, index: number) => void }) {
+function GalleryImageInput({ value, onChange, onCrop, coverImage, onSetCover }: { value: string[]; onChange: (v: string[]) => void; onCrop?: (url: string, index: number) => void; coverImage?: string; onSetCover: (url: string) => void }) {
   const [input, setInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -276,6 +285,9 @@ function GalleryImageInput({ value, onChange, onCrop }: { value: string[]; onCha
           <Image size={16} className="absolute opacity-40" />
         </div>
         <span className="text-xs font-mono flex-1 truncate" style={{ color: "hsl(var(--muted-foreground))" }}>{index + 1}. {url}</span>
+        <Button type="button" variant={coverImage === url ? "secondary" : "ghost"} size="sm" onClick={() => onSetCover(url)} title="Use this image in the project card and cover preview" aria-label="Set as cover image">
+          <Star size={14} className={coverImage === url ? "fill-current" : ""} />
+        </Button>
         {onCrop && (
           <Button type="button" variant="ghost" size="sm" onClick={() => onCrop(url, index)} title="Crop image"><Scissors size={14} /></Button>
         )}
@@ -409,6 +421,8 @@ function ProjectForm({
         <GalleryImageInput
           value={form.galleryImages}
           onChange={(v) => set("galleryImages", v)}
+          coverImage={form.coverImage}
+          onSetCover={(url) => { set("coverImage", url); set("coverImagePosition", "center center"); }}
           onCrop={(url, idx) => setCropState({
             src: url,
             onSave: (newUrl) => {
