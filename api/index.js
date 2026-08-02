@@ -116,14 +116,87 @@ async function handleExperience(req, res) {
   } catch (error) { return sendDatabaseError(res, error); }
 }
 
+// ─── Notifications (Telegram & Email) ──────────────────────────────────────
+async function sendTelegramNotification(text) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return;
+
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram notification error:", err?.message || err);
+  }
+}
+
+async function sendEmailNotification(name, email, subject, message) {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const notifyEmail = process.env.NOTIFY_EMAIL || "ahmed.khaled.elfalah@gmail.com";
+
+  if (!resendApiKey) return;
+
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Portfolio Notifications <onboarding@resend.dev>",
+        to: [notifyEmail],
+        subject: `📬 New Contact Message: ${subject}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <h2 style="color: #1d4ed8; margin-top: 0;">New Message Received</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>Subject:</strong> ${subject}</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 15px 0;" />
+            <p><strong>Message:</strong></p>
+            <div style="background: #f8fafc; padding: 15px; border-left: 4px solid #1d4ed8; border-radius: 4px; white-space: pre-wrap;">${message}</div>
+          </div>
+        `,
+      }),
+    });
+  } catch (e) {
+    console.error("Email notification error:", e?.message);
+  }
+}
+
 async function handleMessages(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { name = "", email = "", subject = "", message = "" } = req.body || {};
   if (![name, email, subject, message].every((v) => typeof v === "string" && v.trim())) return res.status(400).json({ error: "All message fields are required" });
   try {
     await query("INSERT INTO messages (name,email,subject,message) VALUES ($1,$2,$3,$4)", [name.trim(), email.trim(), subject.trim(), message.trim()]);
+
+    const tgText = `📬 <b>New Contact Form Submission</b>\n\n👤 <b>Name:</b> ${name.trim()}\n📧 <b>Email:</b> ${email.trim()}\n📌 <b>Subject:</b> ${subject.trim()}\n\n💬 <b>Message:</b>\n${message.trim()}`;
+    sendTelegramNotification(tgText).catch(() => {});
+    sendEmailNotification(name.trim(), email.trim(), subject.trim(), message.trim()).catch(() => {});
+
     return res.status(201).json({ success: true, data: { ok: true } });
   } catch (error) { return sendDatabaseError(res, error); }
+}
+
+async function handleTrackVisitor(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  const { page = "/", referrer = "" } = req.body || {};
+  const ip = req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "Unknown";
+
+  const tgText = `👁️ <b>New Visitor on Website</b>\n\n📄 <b>Page:</b> ${page}\n🔗 <b>Referrer:</b> ${referrer || 'Direct / Bookmark'}\n🌐 <b>IP:</b> ${ip}`;
+  sendTelegramNotification(tgText).catch(() => {});
+
+  return res.status(200).json({ success: true });
 }
 
 async function handleAuthLogin(req, res) {
@@ -133,7 +206,11 @@ async function handleAuthLogin(req, res) {
   body = body || {};
   const adminPassword = process.env.ADMIN_PASSWORD;
   if (!adminPassword || !process.env.SESSION_SECRET) return res.status(503).json({ error: "Admin authentication is not configured" });
-  if (body.password !== adminPassword) return res.status(401).json({ error: "Invalid password" });
+  if (body.password !== adminPassword) {
+    sendTelegramNotification(`⚠️ <b>Failed Admin Login Attempt</b>\nAn invalid password was entered for the Admin Dashboard.`).catch(() => {});
+    return res.status(401).json({ error: "Invalid password" });
+  }
+  sendTelegramNotification(`🔐 <b>Successful Admin Login</b>\nAdmin logged into the Portfolio Dashboard.`).catch(() => {});
   return res.status(200).json({ token: signAdminToken() });
 }
 
@@ -233,6 +310,7 @@ export default async function handler(req, res) {
   if (path === "/api/skills") return handleSkills(req, res);
   if (path === "/api/experience") return handleExperience(req, res);
   if (path === "/api/messages") return handleMessages(req, res);
+  if (path === "/api/track-visitor") return handleTrackVisitor(req, res);
 
   // ── Auth routes ────────────────────────────────────────────────────────────
   if (path === "/api/auth/login") return handleAuthLogin(req, res);

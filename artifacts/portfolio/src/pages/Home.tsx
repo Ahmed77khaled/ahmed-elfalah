@@ -49,6 +49,16 @@ export default function Home() {
 
     initLenis();
 
+    // Track visitor once per session
+    if (typeof window !== "undefined" && !sessionStorage.getItem("tracked_visit")) {
+      sessionStorage.setItem("tracked_visit", "true");
+      void fetch("/api/track-visitor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page: window.location.pathname, referrer: document.referrer }),
+      }).catch(() => {});
+    }
+
     // Loading screen duration
     const timer = setTimeout(() => setLoading(false), 2300);
 
