@@ -37,11 +37,12 @@ The only public navigation and page sections are listed below, in this order. Th
 | --- | --- | --- | --- | --- |
 | 1 | Home | `components/sections/Hero.tsx` | Static | Establish DevOps, cybersecurity, infrastructure, and automation focus immediately. |
 | 2 | About | `components/sections/About.tsx` | Static | Engineering path and DevSecOps direction. |
-| 3 | Experience | `components/sections/Experience.tsx` | Database: `/api/experience` | Internships, training programs, and practical technical experience. |
-| 4 | Projects | `components/sections/Projects.tsx` | Database: `/api/projects` | Strongest evidence of real technical work. |
-| 5 | Skills | `components/sections/Skills.tsx` | Database: `/api/skills` | Grouped technical capabilities. |
-| 6 | Certifications | `components/sections/Certifications.tsx` | Static | Certificate evidence, skills covered, and related labs where applicable. |
-| 7 | Contact | `components/sections/Contact.tsx` | API | Opportunity and contact path. |
+| 3 | Journey | `components/sections/Journey.tsx` | Database: `/api/journey` | Personal engineering milestone timeline & photo gallery. |
+| 4 | Experience | `components/sections/Experience.tsx` | Database: `/api/experience` | Internships, training programs, and practical technical experience. |
+| 5 | Projects | `components/sections/Projects.tsx` | Database: `/api/projects` | Strongest evidence of real technical work. |
+| 6 | Skills | `components/sections/Skills.tsx` | Database: `/api/skills` | Grouped technical capabilities. |
+| 7 | Certifications | `components/sections/Certifications.tsx` | Static | Certificate evidence, skills covered, and related labs where applicable. |
+| 8 | Contact | `components/sections/Contact.tsx` | API | Opportunity and contact path. |
 
 ### Intentionally removed from the public page
 

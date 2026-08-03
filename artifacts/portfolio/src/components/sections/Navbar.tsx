@@ -7,6 +7,7 @@ import { cn } from "@workspace/fel7o-ds/lib/utils";
 const navLinks = [
   { label: "Home", href: "#hero" },
   { label: "About", href: "#about" },
+  { label: "Journey", href: "#journey" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#skills" },
