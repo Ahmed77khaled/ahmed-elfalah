@@ -12,8 +12,9 @@ const socialLinks = [
 const footerLinks = [
   { label: "About", href: "#about" },
   { label: "Skills", href: "#skills" },
+  { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
-  { label: "Services", href: "#services" },
+  { label: "Certifications", href: "#certifications" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -42,8 +43,8 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed mb-4" style={{ color: "hsl(var(--muted-foreground))" }}>
-              Software engineer, AI builder, and creative technologist.
-              Crafting beautiful software and resilient infrastructure from Port Said, Egypt to the world.
+              Computer Engineering student focused on DevOps, cybersecurity, infrastructure, and automation.
+              Building practical, reliable, and secure systems from Port Said, Egypt.
             </p>
             {/* Social links */}
             <div className="flex gap-3">
@@ -98,7 +99,7 @@ export function Footer() {
               Let's Connect
             </h4>
             <p className="text-sm mb-4" style={{ color: "hsl(var(--muted-foreground))" }}>
-              Open to freelance projects, full-time opportunities, and interesting conversations.
+              Open to internships, entry-level engineering opportunities, technical programs, and meaningful conversations.
             </p>
             <a
               href="mailto:ahmed.khaled.elfalah@gmail.com"
