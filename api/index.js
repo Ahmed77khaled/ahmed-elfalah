@@ -23,7 +23,7 @@ async function query(sql, values = []) {
 
 function sendDatabaseError(res, error) {
   const status = error?.statusCode === 503 ? 503 : 500;
-  return res.status(status).json({ success: false, error: status === 503 ? error.message : (error?.message || "Database request failed") });
+  return res.status(status).json({ success: false, error: status === 503 ? error.message : "Database request failed" });
 }
 
 // ─── JWT ──────────────────────────────────────────────────────────────────────
