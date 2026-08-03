@@ -237,12 +237,12 @@ export function Experience() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
             <span className="text-sm font-mono uppercase tracking-widest" style={{ color: "hsl(var(--primary))" }}>
-              06. Experience & Training
+              02. Experience
             </span>
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
           </div>
           <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
-            Practical Experience & Training
+            Experience & Technical Training
           </h2>
           <p className="text-lg max-w-xl mx-auto" style={{ color: "hsl(var(--muted-foreground))" }}>
             Hands-on internships, professional training programs, and practical field work.

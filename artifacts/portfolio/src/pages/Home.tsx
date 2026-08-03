@@ -8,13 +8,10 @@ import { Hero } from "@/components/sections/Hero";
 import { About } from "@/components/sections/About";
 import { Skills } from "@/components/sections/Skills";
 import { Projects } from "@/components/sections/Projects";
-import { Services } from "@/components/sections/Services";
 import { Experience } from "@/components/sections/Experience";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
 import { Certifications } from "@/components/sections/Certifications";
-import { DeveloperStats } from "@/components/sections/DeveloperStats";
-import { CurrentFocus } from "@/components/sections/CurrentFocus";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -94,28 +91,7 @@ export default function Home() {
           <main>
             <Hero />
 
-            <CurrentFocus />
-
-            {/* Section divider */}
-            <div className="section-divider mx-6 md:mx-12" />
-
             <About />
-
-            <div className="section-divider mx-6 md:mx-12" />
-
-            <Skills />
-
-            <div className="section-divider mx-6 md:mx-12" />
-
-            <Projects />
-
-            <div className="section-divider mx-6 md:mx-12" />
-
-            <Certifications />
-
-            <div className="section-divider mx-6 md:mx-12" />
-
-            <Services />
 
             <div className="section-divider mx-6 md:mx-12" />
 
@@ -123,7 +99,15 @@ export default function Home() {
 
             <div className="section-divider mx-6 md:mx-12" />
 
-            <DeveloperStats />
+            <Projects />
+
+            <div className="section-divider mx-6 md:mx-12" />
+
+            <Skills />
+
+            <div className="section-divider mx-6 md:mx-12" />
+
+            <Certifications />
 
             <div className="section-divider mx-6 md:mx-12" />
 

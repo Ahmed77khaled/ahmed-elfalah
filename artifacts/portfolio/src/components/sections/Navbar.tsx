@@ -5,12 +5,12 @@ import { Button } from "@workspace/fel7o-ds/components/ui/button";
 import { cn } from "@workspace/fel7o-ds/lib/utils";
 
 const navLinks = [
+  { label: "Home", href: "#hero" },
   { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
-  { label: "Credentials", href: "#certifications" },
-  { label: "Services", href: "#services" },
   { label: "Experience", href: "#experience" },
+  { label: "Projects", href: "#projects" },
+  { label: "Skills", href: "#skills" },
+  { label: "Certifications", href: "#certifications" },
   { label: "Contact", href: "#contact" },
 ];
 

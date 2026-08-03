@@ -9,6 +9,8 @@ type Certification = {
   issuer: string;
   detail: string;
   credential: string;
+  skills?: string[];
+  relatedLabs?: string;
   verifyUrl?: string;
   evidenceUrl?: string;
   imagePreview?: string;
@@ -20,6 +22,8 @@ const certifications: Certification[] = [
     issuer: "CCNA Training Program (NTI)",
     detail: "98% Score · 120 hrs",
     credential: "Networking & Security",
+    skills: ["Cisco", "Routing", "Switching", "VLANs", "OSPF"],
+    relatedLabs: "Hands-on routing, switching, IP configuration, and connectivity troubleshooting labs.",
     evidenceUrl: "/certificates/nti-ccna.pdf",
     imagePreview: "/certificates/nti-ccna.webp",
   },
@@ -28,6 +32,7 @@ const certifications: Certification[] = [
     issuer: "NTI (National Telecommunication Institute)",
     detail: "100% Score · 80 hrs",
     credential: "AI Foundations",
+    skills: ["AI fundamentals", "Data concepts", "Applied AI"],
     evidenceUrl: "/certificates/nti-ai.pdf",
     imagePreview: "/certificates/nti-ai.webp",
   },
@@ -36,6 +41,7 @@ const certifications: Certification[] = [
     issuer: "Huawei Certified",
     detail: "Artificial Intelligence",
     credential: "Huawei AI Certified",
+    skills: ["AI concepts", "Machine learning foundations"],
     imagePreview: "/certificates/hcia-ai.webp",
   },
   {
@@ -43,6 +49,7 @@ const certifications: Certification[] = [
     issuer: "Harvard University",
     detail: "Introduction to Computer Science",
     credential: "Computer Science",
+    skills: ["Programming", "Algorithms", "Problem solving"],
     verifyUrl: "https://cs50.harvard.edu/x/",
     evidenceUrl: "/certificates/cs50x.pdf",
     imagePreview: "/certificates/cs50x.webp",
@@ -60,6 +67,7 @@ const certifications: Certification[] = [
     issuer: "Cisco Networking Academy",
     detail: "Python Essentials",
     credential: "Programming",
+    skills: ["Python", "Automation", "Programming fundamentals"],
     evidenceUrl: "/certificates/python-cisco.pdf",
     imagePreview: "/certificates/python-cisco.webp",
   },
@@ -68,6 +76,7 @@ const certifications: Certification[] = [
     issuer: "Cisco Networking Academy",
     detail: "Data Analytics Foundations",
     credential: "Cisco Certified",
+    skills: ["Data concepts", "Analytics fundamentals"],
     evidenceUrl: "/certificates/data-science.pdf",
     imagePreview: "/certificates/data-science.webp",
   },
@@ -159,10 +168,10 @@ export function Certifications() {
         <div className="text-center mb-14">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
-            <span className="text-sm font-mono uppercase tracking-widest text-primary">04. Credentials</span>
+            <span className="text-sm font-mono uppercase tracking-widest text-primary">05. Certifications</span>
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
           </div>
-          <h2 className="text-4xl md:text-5xl font-black mt-4 text-foreground">Certified Expertise</h2>
+          <h2 className="text-4xl md:text-5xl font-black mt-4 text-foreground">Certifications</h2>
           <p className="text-lg mt-4 text-muted-foreground max-w-xl mx-auto">
             Accredited certificates and milestones across engineering, AI, networking, and software development.
           </p>
@@ -267,9 +276,16 @@ export function Certifications() {
                 </div>
 
                 <div className="rounded-xl bg-primary/10 p-4 border border-primary/20">
-                  <p className="font-semibold text-foreground">{selected.credential}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Official certification & verified achievement.</p>
+                  <p className="font-semibold text-foreground">Skills Covered</p>
+                  <p className="text-xs text-muted-foreground mt-1">{(selected.skills ?? [selected.credential]).join(" · ")}</p>
                 </div>
+
+                {selected.relatedLabs && (
+                  <div className="rounded-xl bg-accent/10 p-4 border border-accent/20">
+                    <p className="font-semibold text-foreground">Related Labs</p>
+                    <p className="text-xs text-muted-foreground mt-1">{selected.relatedLabs}</p>
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   {selected.imagePreview && (

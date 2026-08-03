@@ -178,16 +178,15 @@ export function Skills() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
             <span className="text-sm font-mono uppercase tracking-widest" style={{ color: "hsl(var(--primary))" }}>
-              02. Skills
+              04. Skills
             </span>
             <div className="h-px w-12" style={{ background: "hsl(var(--primary))" }} />
           </div>
           <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4">
-            Technical Arsenal
+            Technical Skills
           </h2>
           <p className="text-lg max-w-xl mx-auto" style={{ color: "hsl(var(--muted-foreground))" }}>
-            A curated stack built through years of hands-on project work, continuous learning,
-            and production deployments.
+            Practical engineering skills organized around infrastructure, automation, cloud, and security.
           </p>
         </motion.div>
 

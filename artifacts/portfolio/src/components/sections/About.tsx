@@ -8,8 +8,8 @@ const timelineItems = [
   {
     year: "2022",
     icon: Heart,
-    title: "Design First",
-    subtitle: "UI/UX Design & AI Fundamentals",
+    title: "Engineering Foundations",
+    subtitle: "Computer Engineering & Technical Problem Solving",
     description:
       "Started the journey with UI/UX design — learning the principles behind beautiful, usable digital products. Alongside, explored AI fundamentals and how artificial intelligence is reshaping every corner of the tech landscape.",
     color: "primary",
@@ -17,8 +17,8 @@ const timelineItems = [
   {
     year: "2023",
     icon: Code2,
-    title: "Learning to Code",
-    subtitle: "Python & Problem Solving with C++",
+    title: "Automation with Code",
+    subtitle: "Python, Bash Concepts & C++ Problem Solving",
     description:
       "Dove deep into Python — from zero to level 3 — building automation scripts and data-driven tools. Studied Problem Solving with C++, sharpening algorithmic thinking and computer science fundamentals that make every future skill stronger.",
     color: "accent",

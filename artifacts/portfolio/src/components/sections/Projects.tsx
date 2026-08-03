@@ -375,7 +375,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
           {/* Features */}
           <div className="mb-6">
             <h4 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "hsl(var(--primary))" }}>
-              Key Features
+              Implementation & Results
             </h4>
             <ul className="space-y-2">
               {project.features.map((f) => (

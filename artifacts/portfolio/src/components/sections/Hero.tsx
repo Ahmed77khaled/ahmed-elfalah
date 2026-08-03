@@ -5,11 +5,10 @@ import { SiFacebook, SiYoutube } from "react-icons/si";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 
 const TYPING_TEXTS = [
-  "UI/UX Designer",
-  "Python Developer",
-  "Network Engineer",
-  "DevOps Enthusiast",
-  "Security Learner",
+  "Aspiring DevOps Engineer",
+  "Cybersecurity Engineer",
+  "Infrastructure & Automation",
+  "Future DevSecOps Engineer",
 ];
 
 function TypingEffect() {
@@ -260,8 +259,8 @@ export function Hero() {
                 className="text-3xl md:text-5xl font-black leading-tight mb-6"
               >
                 I Build{" "}
-                <span style={{ color: "hsl(var(--foreground))" }}>Beautiful</span>{" "}
-                <span className="gradient-text">Software.</span>
+                <span style={{ color: "hsl(var(--foreground))" }}>Reliable</span>{" "}
+                <span className="gradient-text">Systems.</span>
               </motion.h2>
             </motion.div>
 
@@ -284,8 +283,8 @@ export function Hero() {
               className="text-base md:text-lg mb-10 max-w-xl leading-relaxed"
               style={{ color: "hsl(var(--muted-foreground))" }}
             >
-              Passionate about UI/UX design, Python development, networking, and DevOps.
-              Building a comprehensive skill set to craft elegant software and resilient infrastructure.
+              Computer Engineering Student focused on DevOps, cybersecurity, infrastructure, and automation.
+              I build practical systems and technical projects that make services more reliable, observable, and secure.
             </motion.p>
 
             {/* CTA Buttons */}
