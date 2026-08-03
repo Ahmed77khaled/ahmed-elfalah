@@ -119,9 +119,30 @@ async function handleExperience(req, res) {
   } catch (error) { return sendDatabaseError(res, error); }
 }
 
+let journeyTableEnsured = false;
+async function ensureJourneyTable() {
+  if (journeyTableEnsured) return;
+  await query(`CREATE TABLE IF NOT EXISTS journey (
+    id            SERIAL PRIMARY KEY,
+    title         TEXT NOT NULL,
+    subtitle      TEXT NOT NULL DEFAULT '',
+    description   TEXT NOT NULL DEFAULT '',
+    event_date    DATE NOT NULL,
+    category      TEXT NOT NULL DEFAULT 'education',
+    tags          JSONB NOT NULL DEFAULT '[]'::jsonb,
+    image_url     TEXT NOT NULL DEFAULT '',
+    image_caption TEXT NOT NULL DEFAULT '',
+    highlight     BOOLEAN NOT NULL DEFAULT FALSE,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  )`);
+  journeyTableEnsured = true;
+}
+
 async function handleJourney(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
   try {
+    await ensureJourneyTable();
     res.setHeader("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600");
     const { rows } = await query(`SELECT ${journeyColumns} FROM journey ORDER BY event_date ASC, display_order ASC, id ASC`);
     return res.status(200).json({ success: true, data: rows });
@@ -131,6 +152,7 @@ async function handleJourney(req, res) {
 async function handleAdminJourney(req, res, id) {
   if (!requireAdmin(req, res)) return;
   try {
+    await ensureJourneyTable();
     if (req.method === "GET") {
       const { rows } = await query(`SELECT ${journeyColumns} FROM journey ORDER BY event_date ASC, display_order ASC, id ASC`);
       return res.status(200).json({ success: true, data: rows });
