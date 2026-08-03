@@ -85,7 +85,7 @@ export function Navbar() {
             data-testid="nav-cta-button"
             style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
           >
-            Hire Me
+            Get in Touch
           </Button>
         </div>
 
@@ -126,7 +126,7 @@ export function Navbar() {
                 onClick={() => handleNavClick("#contact")}
                 className="w-full mt-2"
               >
-                Hire Me
+                Get in Touch
               </Button>
             </div>
           </motion.div>

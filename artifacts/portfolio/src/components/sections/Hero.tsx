@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Download, Mail, ChevronDown, Linkedin } from "lucide-react";
+import { Download, Mail, ChevronDown, Github, Linkedin } from "lucide-react";
 import { SiFacebook, SiYoutube } from "react-icons/si";
 import { Button } from "@workspace/fel7o-ds/components/ui/button";
 
@@ -48,6 +48,7 @@ function TypingEffect() {
 }
 
 const socialLinks = [
+  { icon: Github, href: "https://github.com/Ahmed77khaled", label: "GitHub" },
   { icon: Linkedin, href: "https://www.linkedin.com/in/ahmed-el-falah-b771bb345", label: "LinkedIn" },
   { icon: SiFacebook, href: "https://web.facebook.com/ahmed.elfalah.754", label: "Facebook" },
   { icon: SiYoutube, href: "https://www.youtube.com/@Ahmed_59k", label: "YouTube" },

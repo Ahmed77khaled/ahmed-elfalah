@@ -85,6 +85,8 @@ Current metadata describes Ahmed as a Computer Engineering student focused on De
 - Data loads from `/api/projects`.
 - The project detail modal presents the solution description, implementation/results list, technology stack, evidence images, GitHub, and demo/lab links.
 - Only retain real technical work. Prefer infrastructure, automation, security, monitoring, cloud, networking, and engineering projects over course screenshots.
+- When a project only has Ahmed's profile URL, the public action is labeled `GitHub Profile`; use `Source Code` only when the project has a dedicated repository URL.
+- Do not invent a cloud project, architecture diagram, project result, or source repository. Add each item only when authentic work and evidence are available.
 
 ### Skills
 

@@ -190,6 +190,10 @@ function parseArray(val: unknown): string[] {
   return [];
 }
 
+function isGitHubProfileUrl(url: string): boolean {
+  return /^https:\/\/github\.com\/[^/]+\/?$/.test(url.trim());
+}
+
 function ProjectModal({ project, open, onClose }: { project: Project | null; open: boolean; onClose: () => void }) {
   const [activeImgIndex, setActiveImgIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -368,9 +372,14 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
 
           {allImages.length <= 1 && <div className="mb-6" />}
  
-          <p className="text-sm leading-relaxed mb-6" style={{ color: "hsl(var(--muted-foreground))" }}>
-            {project.description}
-          </p>
+          <div className="mb-6">
+            <h4 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "hsl(var(--primary))" }}>
+              Problem & Solution
+            </h4>
+            <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
+              {project.description}
+            </p>
+          </div>
  
           {/* Features */}
           <div className="mb-6">
@@ -421,7 +430,7 @@ function ProjectModal({ project, open, onClose }: { project: Project | null; ope
             >
               <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                 <Github size={14} className="mr-2" />
-                GitHub
+                {isGitHubProfileUrl(project.githubUrl) ? "GitHub Profile" : "Source Code"}
               </a>
             </Button>
           </div>
