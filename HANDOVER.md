@@ -1,39 +1,97 @@
-# تقرير التسليم والنشر على Vercel
+# Deployment Runbook - Ahmed El-Falah Portfolio
 
-## حالة المشروع
+> Last updated: 2026-08-03
+>
+> For product architecture and current public content, read `PROJECT_HANDOVER.md`.
 
-المشروع جاهز للبناء والنشر على Vercel. تم التحقق من TypeScript وبناء إنتاج واجهة البورتفوليو. كما تم تأمين جلسات لوحة التحكم بحيث لا تُقبل إلا رموز JWT الموقعة والصالحة.
+## Live services
 
-## المتغيرات المطلوبة
-
-أضف هذه المتغيرات من **Vercel → Project Settings → Environment Variables** قبل النشر. استخدم قيماً قوية وفريدة؛ ولا تضع القيم الحقيقية في Git أو في هذا الملف.
-
-| المتغير | الغرض |
+| Service | URL / value |
 | --- | --- |
-| `ADMIN_PASSWORD` | كلمة مرور قوية للوصول إلى لوحة التحكم |
-| `SESSION_SECRET` | سلسلة عشوائية طويلة لتوقيع جلسات لوحة التحكم |
-| `NODE_ENV` | `production` |
-| `CORS_ORIGIN` | رابط النطاق المنشور، مثل `https://your-project.vercel.app` |
-| `DATABASE_URL` | رابط اتصال PostgreSQL الدائم (Neon أو Vercel Postgres أو Supabase) |
+| Production | https://ahmed-elfalah.vercel.app |
+| GitHub | https://github.com/Ahmed77khaled/ahmed-elfalah |
+| Vercel project | `fel7o/ahmed-elfalah` |
+| Branch | `master` |
 
-يمكن البدء من ملف `.env.example` المحلي، مع إبقاء ملف `.env` غير مرفوع إلى Git.
+## Safe release checklist
 
-## إعداد النشر
-
-- **Build Command:** `pnpm --filter @workspace/portfolio run build`
-- **Output Directory:** `artifacts/portfolio/dist/public`
-- **Install Command:** `pnpm install --frozen-lockfile`
-- المسارات `/admin/login` و`/admin` و`/admin/dashboard` مدعومة عبر إعدادات Vercel الحالية.
-
-## فحص ما بعد النشر
+1. Confirm only intended files are modified:
 
 ```powershell
-curl.exe -i https://your-domain.vercel.app/api/projects
-curl.exe -i https://your-domain.vercel.app/api/healthz
+git status --short
+git diff --check
 ```
 
-افتح `/admin/login` وسجل الدخول باستخدام القيمة التي وضعتها في `ADMIN_PASSWORD`، ثم تأكد من فتح لوحة التحكم.
+2. Verify TypeScript from repository root:
 
-## تهيئة قاعدة البيانات
+```powershell
+node_modules\.bin\tsc.cmd --noEmit -p artifacts\portfolio\tsconfig.json
+```
 
-سنستخدم **Supabase**. أنشئ مشروعاً جديداً ثم شغّل محتوى الملف `db/init.sql` مرة واحدة من SQL Editor؛ ينشئ الملف الجداول ويضيف بيانات البورتفوليو الأولية بدون الكتابة فوق البيانات الموجودة. من زر **Connect** انسخ رابط **Transaction pooler** (المنفذ `6543`) وضعه كقيمة `DATABASE_URL` في إعدادات Vercel، ثم أعد النشر. بعد ذلك كل الرسائل وتعديلات لوحة التحكم تحفظ في قاعدة البيانات بشكل دائم.
+3. Build from the portfolio application directory:
+
+```powershell
+Set-Location artifacts\portfolio
+node_modules\.bin\vite.cmd build
+```
+
+4. Commit and push:
+
+```powershell
+git add -- <intended files>
+git commit -m "<clear summary>"
+git push origin master
+```
+
+5. Verify Preview status:
+
+```powershell
+vercel ls --yes
+```
+
+6. Promote the newest Ready Preview only:
+
+```powershell
+vercel promote https://<latest-preview>.vercel.app --yes
+```
+
+7. Wait for the new Production deployment to become `Ready`:
+
+```powershell
+vercel inspect https://<production-deployment>.vercel.app --timeout 60s
+```
+
+8. Confirm the public alias and health endpoint:
+
+```powershell
+curl.exe -I https://ahmed-elfalah.vercel.app
+curl.exe https://ahmed-elfalah.vercel.app/api/healthz
+```
+
+## Vercel configuration
+
+`vercel.json` uses:
+
+- Build command: `pnpm --filter @workspace/portfolio run build`
+- Output directory: `artifacts/portfolio/dist/public`
+- Serverless API: `api/index.js`
+- SPA rewrite for application routes while preserving static files such as PDFs and images.
+- Daily cron route: `/api/cron/reminders`.
+
+## Required environment variable names
+
+Set these in Vercel Project Settings. Keep values private and never commit them:
+
+- `DATABASE_URL`
+- `ADMIN_PASSWORD`
+- `SESSION_SECRET`
+- `CORS_ORIGIN`
+- `NODE_ENV=production`
+- `CRON_SECRET`
+
+## Important notes
+
+- A GitHub push creates a Preview deployment. Production requires manual promotion.
+- If pnpm reports ignored `esbuild` build scripts, use the already-installed direct TypeScript/Vite verification commands above. Do not weaken dependency policy without approval.
+- Do not deploy secrets, generated archives, or unrelated local scripts.
+- After every meaningful public change, update `PROJECT_HANDOVER.md` and this runbook when release behavior changes.

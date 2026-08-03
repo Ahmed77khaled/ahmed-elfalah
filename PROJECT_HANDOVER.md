@@ -1,166 +1,160 @@
-# Ahmed El-Falah Portfolio — Project Handover
+# Ahmed El-Falah Portfolio - Project Handover
 
-> Last updated: 2026-08-02
+> Last updated: 2026-08-03
 >
-> This is the working handover for any future developer/agent. Keep it current after meaningful changes. **Never add passwords, database URLs, API tokens, Telegram tokens, or private keys to this file or Git.**
+> Keep this document current after every material website, content, deployment, or data-model change. Never put passwords, database URLs, tokens, or private keys here.
 
-## 1. Product and live environments
+## Product position
+
+Ahmed El-Falah is presented as a Computer Engineering student focused on:
+
+- Aspiring DevOps engineering
+- Cybersecurity and SOC concepts
+- Infrastructure, networking, and automation
+- Long-term DevSecOps development
+
+The public site is an engineering opportunity portfolio. It must not position Ahmed as a generic web developer or freelance services provider.
+
+## Live environments
 
 | Item | Value |
 | --- | --- |
 | Production site | https://ahmed-elfalah.vercel.app |
-| GitHub repository | `Ahmed77khaled/ahmed-elfalah` |
-| Default local branch | `master` |
-| Deployment platform | Vercel (`fel7o/ahmed-elfalah`) |
-| Frontend | React + TypeScript + Vite + Tailwind/custom design system + Framer Motion |
+| GitHub repository | https://github.com/Ahmed77khaled/ahmed-elfalah |
+| Main branch | `master` |
+| Vercel project | `fel7o/ahmed-elfalah` |
+| Production deployment | Vercel, manually promoted after Preview validation |
+| Frontend | React, TypeScript, Vite, Tailwind/custom design system, Framer Motion |
 | Routing | Wouter |
-| API | Vercel serverless function at `api/index.js` |
+| API | Vercel serverless function in `api/index.js` |
 | Database | PostgreSQL / Supabase |
 
-### Important deployment behavior
+## Public information architecture
 
-- Git pushes to `master` currently create a **Vercel Preview**, not Production.
-- After a verified Preview is ready, promote it manually:
+The only public navigation and page sections are listed below, in this order. The order is controlled by `artifacts/portfolio/src/pages/Home.tsx`.
 
-```powershell
-vercel ls ahmed-elfalah
-vercel promote https://<latest-preview>.vercel.app --yes
+| Order | Section | File | Content source | Purpose |
+| --- | --- | --- | --- | --- |
+| 1 | Home | `components/sections/Hero.tsx` | Static | Establish DevOps, cybersecurity, infrastructure, and automation focus immediately. |
+| 2 | About | `components/sections/About.tsx` | Static | Engineering path and DevSecOps direction. |
+| 3 | Experience | `components/sections/Experience.tsx` | Database: `/api/experience` | Internships, training programs, and practical technical experience. |
+| 4 | Projects | `components/sections/Projects.tsx` | Database: `/api/projects` | Strongest evidence of real technical work. |
+| 5 | Skills | `components/sections/Skills.tsx` | Database: `/api/skills` | Grouped technical capabilities. |
+| 6 | Certifications | `components/sections/Certifications.tsx` | Static | Certificate evidence, skills covered, and related labs where applicable. |
+| 7 | Contact | `components/sections/Contact.tsx` | API | Opportunity and contact path. |
+
+### Intentionally removed from the public page
+
+- Credentials: duplicated Certifications and Experience.
+- Services: incorrect for an engineering opportunity portfolio.
+- Current Focus and Developer Stats: removed to keep the information architecture focused.
+
+The component files may remain in the repository but must not be rendered by `Home.tsx` or linked from navigation/footer unless the owner makes a deliberate product decision to restore them.
+
+## Current messaging rules
+
+- Use: DevOps, cybersecurity, infrastructure, automation, networking, systems, secure operations, and DevSecOps.
+- Avoid positioning as: UI/UX designer, general web developer, AI builder, freelancer, or full-stack service provider.
+- Use opportunity language: internships, entry-level engineering roles, technical programs, and professional collaboration.
+- Do not label training as a completed certification before an official certificate is issued.
+- Maintain the current design system, animations, cards, spacing, and responsive behavior. Information architecture and content may change; visual identity should not be redesigned without owner approval.
+
+## SEO and social metadata
+
+`artifacts/portfolio/index.html` contains the production title, description, Open Graph, and Twitter metadata.
+
+Current title:
+
+```text
+Ahmed El-Falah | Aspiring DevOps & Cybersecurity Engineer
 ```
 
-- The production deployment should then appear as `Ready` in `vercel ls ahmed-elfalah`.
-- `vercel.json` deliberately excludes paths containing file extensions from the SPA rewrite. This is required for static assets such as PDFs to work.
+Current metadata describes Ahmed as a Computer Engineering student focused on DevOps, cybersecurity, infrastructure, and automation. Keep this aligned with the Hero and About sections.
 
-## 2. Repository map
+## Key implementation notes
+
+### Certifications
+
+- Certifications are currently curated in `components/sections/Certifications.tsx`.
+- Each card should have an image when authentic evidence is available, issuer, date/detail, and skills covered.
+- CCNA has a `Related Labs` description that points to routing, switching, IP configuration, and troubleshooting work.
+- Do not create a generic gallery. High-value screenshots belong in their certification or project context.
+
+### Projects
+
+- Data loads from `/api/projects`.
+- The project detail modal presents the solution description, implementation/results list, technology stack, evidence images, GitHub, and demo/lab links.
+- Only retain real technical work. Prefer infrastructure, automation, security, monitoring, cloud, networking, and engineering projects over course screenshots.
+
+### Skills
+
+- Data loads from `/api/skills` and groups automatically by category.
+- Preferred groups are Networking, Systems, DevOps, Cloud, Security, and Programming.
+- Avoid random icon walls and unsupported percentage claims.
+
+### Experience
+
+- Data loads from `/api/experience`.
+- Use it for internships, technical programs, and real professional/training work, not as another certificate list.
+- Entries should clearly identify the organization, duration, scope, technologies, and practical outcome whenever the source data supports it.
+
+### Footer
+
+- Footer navigation mirrors the approved public sections and contains no Services link.
+- Footer copy invites internships, entry-level engineering opportunities, technical programs, and meaningful conversations.
+
+## Repository map
 
 ```text
 api/                         Vercel serverless API, auth, CMS, notifications
 artifacts/portfolio/         Main Vite portfolio application
   public/                    Static assets deployed as site root
-  src/components/sections/   Visible portfolio sections
-  src/pages/Home.tsx         Public home composition and section order
+  src/components/sections/   Public section components
+  src/pages/Home.tsx         Public section composition and order
   src/pages/admin/           CMS/admin interface
 db/init.sql                  Database schema and initial data
 lib/db/                      Drizzle database schema package
 vercel.json                  Vercel build/output/routing configuration
-PROJECT_HANDOVER.md          This document
+HANDOVER.md                  Deployment runbook
+PROJECT_HANDOVER.md          This product and technical handover
 ```
 
-## 3. Public site sections and their source files
+## Deployment workflow
 
-The page order is defined in `artifacts/portfolio/src/pages/Home.tsx`.
+1. Make the smallest scoped change.
+2. Typecheck and build the portfolio.
+3. Commit only intended files and push `master` to GitHub.
+4. Wait for the Vercel Preview to become `Ready`.
+5. Promote that exact Preview to Production:
 
-| Section | Main file | Data source | Notes |
-| --- | --- | --- | --- |
-| Navigation | `components/sections/Navbar.tsx` | Static | Includes CV button; AR/EN toggle was removed because it was not functioning fully. |
-| Hero | `components/sections/Hero.tsx` | Static | Includes the official CV download CTA. |
-| Current Focus | `components/sections/CurrentFocus.tsx` | Static | Small current-learning card directly below Hero. Update dates/status manually when they change. |
-| About | `components/sections/About.tsx` | Static | Personal overview. |
-| Skills | `components/sections/Skills.tsx` | Database | Loads `/api/skills`. |
-| Projects | `components/sections/Projects.tsx` | Database | Loads `/api/projects`; has animated category filter tabs. |
-| Certifications | `components/sections/Certifications.tsx` | Static | 16 cards and a detail dialog. Needs real certificate photos/verification links next. |
-| Services | `components/sections/Services.tsx` | Static | Services overview. |
-| Experience | `components/sections/Experience.tsx` | Database | Loads `/api/experience`. |
-| Stats | `components/sections/Stats.tsx` | Static | Portfolio metric cards. |
-| GitHub widget | `components/sections/DeveloperStats.tsx` | GitHub public API | Codeforces card was removed. |
-| Testimonials / Contact / Footer | corresponding files | Contact calls API | Contact data is saved through the serverless API. |
+```powershell
+vercel ls --yes
+vercel promote https://<latest-preview>.vercel.app --yes
+```
 
-## 4. Implemented work and current status
+6. Confirm the resulting Production deployment is `Ready` and that `https://ahmed-elfalah.vercel.app` resolves.
 
-### Portfolio UI
+Git pushes to `master` currently generate a Vercel Preview, not an automatic Production deployment.
 
-- [x] Animated project category tabs: `All`, `IoT & Embedded`, `AI & Security`, `Engineering`, and `Web Development`.
-- [x] Certification showcase with 16 cards and click-to-open details dialog.
-- [x] CV buttons in Hero and Navbar.
-- [x] GitHub activity widget.
-- [x] Current Focus card (intentionally compact; not a large standalone section).
-- [x] Codeforces/ACPC live-data card removed at the owner’s request.
-- [x] AR/EN toggle and its incomplete language infrastructure removed at the owner’s request.
-- [x] Static PDF routing fixed on Vercel.
-- [x] CCNA Networking Labs project added to the CMS with documented Packet Tracer work and downloadable `.pkt` lab file.
-- [x] Admin project gallery now provides image previews plus move-up/move-down controls. The array order is the public gallery order.
-- [x] Follow-up Reminders system: dashboard list, CRUD page, one-day-before/due-day Telegram reminders, and Vercel Cron automation.
+## Local verification
 
-### CV files
+From the repository root:
 
-Both files exist in `artifacts/portfolio/public/` and are intentionally deployed:
+```powershell
+node_modules\.bin\tsc.cmd --noEmit -p artifacts\portfolio\tsconfig.json
+```
 
-| Public URL | File | Why it exists |
-| --- | --- | --- |
-| `/Ahmed_Khaled_Elfalah_FINAL_CV.pdf` | `Ahmed_Khaled_Elfalah_FINAL_CV.pdf` | Official filename used by new buttons. |
-| `/resume.pdf` | `resume.pdf` | Backward-compatible URL used by old links. |
+From `artifacts/portfolio`:
 
-The live legacy URL was verified to return `application/pdf` successfully:
+```powershell
+node_modules\.bin\vite.cmd build
+```
 
-https://ahmed-elfalah.vercel.app/resume.pdf
+The normal pnpm commands may be blocked by the existing `esbuild` build-script approval policy. Do not change the dependency policy merely to bypass that warning.
 
-### CCNA evidence added on 2026-08-02
+## API and environment variables
 
-The following public assets are in `artifacts/portfolio/public/labs/ccna/`:
-
-- `ccna-routing-switching-certificate.pdf` - CCNA Routing and Switching, 98%, 120 total hours (90 technical + 30 soft skills), dated 24 January to 18 February 2026.
-- `connectivity-validation.png` - successful Packet Tracer ICMP validation.
-- `ospf-adjacency.png` - OSPF neighbor and area configuration.
-- `vlan-topology.png` and `switch-topology.png` - switching/VLAN topology work.
-- `snmp-router-config.png` and `snmp-manager-agent.png` - SNMP configuration and manager-agent concepts.
-- `ip-configuration-check.png`, `subnetting-plan.png`, `connectivity-troubleshooting.png`, `snmp-lab-sketch.png`, `snmp-design-notes.png`, and `snmp-use-cases.png` - setup, calculation, troubleshooting, and SNMP learning evidence.
-- `ccna-lab-project.pkt` - downloadable Cisco Packet Tracer project file.
-
-Six authentic training photos were added on 2026-08-02 from `D:\fel7o tech\CCNA\gallery\New folder`: hands-on laptop work, presentation, classroom, training-room, and NTI group/event photos. The project cover is now `hands-on-networking-training.jpg`.
-
-The CMS project **CCNA Networking Labs** now has 18 images in a deliberate order: authentic personal/training evidence → setup → subnetting/VLAN/routing → SNMP → troubleshooting → successful validation. Its gallery can be reordered at `/console/projects`: edit the project and use the up/down arrows under **Gallery Images**, then save.
-
-### Current Focus content (as of 2026-08-02)
-
-- Electrical Training — started 4 July 2026; scheduled to end 6 August 2026.
-- System Administration Training — started 2 July 2026; ongoing, expected to continue for at least three more months.
-- DevOps Training — currently week 3; started approximately 19 July 2026.
-- HCIA-Security — upcoming in August 2026; 80 hours.
-
-## 5. Experience database entries added on 2026-08-02
-
-These four rows were added directly to the production PostgreSQL/Supabase `experience` table and confirmed by `GET /api/experience`:
-
-1. **Electrical Training Trainee** — Electrical Training Program (2026-07-04 to 2026-08-06)
-2. **System Administration Trainee** — System Administration Training (current)
-3. **DevOps Trainee** — DevOps Training Program (current, week 3 at time of writing)
-4. **Upcoming HCIA-Security Training** — Huawei ICT Academy (August–September 2026)
-
-The HCIA-Security description includes information-security fundamentals, server/OS security, firewall configuration, NAT, dual-system hot standby, user management, IPS, cryptography, PKI/certificates, monitoring, digital forensics, incident response, and a practical case workshop. It is explicitly marked as **upcoming training**, not a completed certificate.
-
-When a course ends, update its row through the Admin UI or database: set the final `end_date`, set `current_position` to `false`, and revise the description with actual outcomes/labs. Only move it to Certifications when there is a real issued certificate.
-
-## 6. Certificate/documentation workflow — next priority
-
-The owner wants the portfolio to be evidence-based. Start with **Networking / CCNA**.
-
-For every certificate or lab, collect:
-
-1. Full, clear certificate image or PDF.
-2. Exact certificate title and issuer.
-3. Issue date, expiry date (if any), score, and hours.
-4. Credential ID and official verification URL, when available.
-5. A short list of concrete skills/lab outcomes.
-6. For a lab: screenshots, topology/diagram, problem solved, tools used, and result.
-
-### Recommended order
-
-1. CCNA / Cisco Networking
-2. Artificial Intelligence
-3. ITI Python & Web Development
-4. ACPC / competitive programming
-5. DevOps labs
-6. HCIA-Security after course completion/certificate issue
-
-### How to add a verified certificate
-
-1. Put the supplied image in `artifacts/portfolio/public/certificates/` (create the folder if needed).
-2. Update the relevant object in `components/sections/Certifications.tsx` with a real `verifyUrl` and image field (the component may need a small image-preview addition).
-3. Use `Completed` only for issued certificates; use `In progress` or `Upcoming` for training.
-4. Build, deploy Preview, visually verify, then promote to Production.
-
-## 7. API, database, and notification notes
-
-### Public/API endpoints used by the frontend
+Public endpoints used by the frontend:
 
 - `GET /api/projects`
 - `GET /api/skills`
@@ -169,94 +163,29 @@ For every certificate or lab, collect:
 - `POST /api/track-visitor`
 - `GET /api/healthz`
 
-Admin endpoints are under `/api/admin/*` and need the configured JWT/session flow.
-
-### Notification safety rule
-
-`api/index.js` has existing visitor/message notification behavior. Preserve the use of `await Promise.allSettled([...])` for notification fetches so the serverless invocation waits for those jobs before responding.
-
-### Follow-up reminders
-
-- Admin route: `/console/reminders`.
-- Add a title, exact due date, and optional notes for any training, certificate, project, or follow-up.
-- Dashboard shows the current pending reminder count and a short list.
-- Vercel Cron calls `/api/cron/reminders` daily at `06:00 UTC`. On the Hobby plan, Vercel may invoke it within that hour.
-- The cron endpoint sends Telegram once one day before the due date and once on the due date; the database flags prevent duplicates.
-- Add `CRON_SECRET` in Vercel as a random value of 16+ characters. Vercel sends it as a Bearer authorization header to the cron endpoint. Do not store its value in Git.
-- The initial reminder is **Electrical Training - completion follow-up** due 2026-08-06. Future courses with uncertain end dates should be added when an exact completion date is known.
-
-### Required Vercel environment variable names
-
-The exact values are private and must exist only in Vercel/local ignored environment files.
+Required Vercel environment variable names:
 
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | PostgreSQL/Supabase connection string |
-| `ADMIN_PASSWORD` | Admin console login password |
+| `ADMIN_PASSWORD` | Admin console password |
 | `SESSION_SECRET` | JWT/session signing secret |
 | `CORS_ORIGIN` | Production domain |
 | `NODE_ENV` | `production` in production |
-| `CRON_SECRET` | Random 16+ character secret that secures Vercel Cron calls |
+| `CRON_SECRET` | Secures Vercel Cron calls |
 
-## 8. Local development and verification
+## Recent change history
 
-From repository root:
+| Date | Commit | Change |
+| --- | --- | --- |
+| 2026-08-03 | `6464f54` | Aligned SEO, About, and Footer with the engineering portfolio position. |
+| 2026-08-03 | `3bd06d5` | Refactored public structure around DevOps and cybersecurity; removed Credentials and Services from public composition. |
+| 2026-08-03 | `9890c1f` | Added certification image preview cards and detailed certificate dialogs. |
 
-```powershell
-pnpm --filter @workspace/portfolio run dev
-node node_modules\typescript\bin\tsc -p artifacts\portfolio\tsconfig.json --noEmit
-pnpm --filter @workspace/portfolio run build
-```
+## Next review checklist
 
-If the normal pnpm command reports ignored build scripts for `esbuild`, the Vite binary in the workspace can be run directly after dependencies are already installed. Do not change dependency policy just to bypass that warning.
-
-Useful live checks:
-
-```powershell
-curl.exe -I https://ahmed-elfalah.vercel.app/resume.pdf
-curl.exe https://ahmed-elfalah.vercel.app/api/experience
-curl.exe https://ahmed-elfalah.vercel.app/api/healthz
-```
-
-Expected CV response: HTTP 200 with `Content-Type: application/pdf`.
-
-## 9. Git and deployment history relevant to this handover
-
-| Commit | Summary |
-| --- | --- |
-| `21edd75` | Added Current Focus card. |
-| `d333363` | Removed language toggle and Codeforces card. |
-| `b19fe96` | Fixed Vercel static-asset routing. |
-| `5af01eb` | Added portfolio enhancements and CV files. |
-| `d9a95b8` | Ensured serverless notification promises are awaited. |
-
-## 10. Outstanding work / decisions
-
-### High priority
-
-- [ ] Receive the CCNA/networking certificate images and verification information.
-- [ ] Add real certificate images and verification links to the Certifications UI.
-- [ ] Review the existing 16 certificate cards: replace any placeholder/assumed entry with verified owner-provided data.
-- [ ] Update Current Focus dates/status as training milestones change.
-- [ ] When a course ends, use the Dashboard reminder, then add its certificate and final evidence to the relevant page.
-
-### Good next improvements
-
-- [ ] Add a documented Labs & Projects area: network topology, server admin, Docker/CI-CD, and future security labs.
-- [ ] Add a status/tag design for `Completed`, `In progress`, and `Upcoming` credentials.
-- [ ] Make the Certifications section data-driven from the database after the owner has assembled verified evidence.
-- [ ] Review project entries, GitHub URLs, cover images, and categories for accuracy.
-- [ ] CCNA gallery is arranged around the dated evidence sequence (29 Jan–23 Feb 2026). A few authentic classroom/event photos have no embedded timestamp; keep their current contextual position unless Ahmed confirms their exact date.
-- [ ] Reduce the main JavaScript bundle if performance becomes a concern (the build warns that it is above 500 kB after minification).
-
-## 11. Worktree hygiene
-
-At the time this document was created, several local utility scripts and `.gitignore` changes were already uncommitted and were **not** included in feature deployments because their purpose/ownership was not confirmed. Do not delete or commit them blindly. Review them with the owner first.
-
-## 12. Working agreement
-
-- Prefer accuracy over impressive claims.
-- Do not mark a training course as a certificate before a certificate is issued.
-- Do not publish secret values or personal access tokens.
-- Every user-visible change should be typechecked, built, pushed, deployed to a Preview, and promoted to Production once verified.
-- After any material change, update this handover document.
+- Verify every project is real and has accurate links, descriptions, tech stack, and evidence.
+- Replace any assumed certificate date/skill data with owner-verified details.
+- Move course screenshots into the relevant certification or project; do not add a general gallery.
+- Add concrete technology and outcome fields to experience data as owner-provided details become available.
+- Reassess the main JavaScript bundle only if performance becomes a visible issue.
