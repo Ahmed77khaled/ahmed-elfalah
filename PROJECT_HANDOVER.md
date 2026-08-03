@@ -183,6 +183,7 @@ Required Vercel environment variable names:
 | 2026-08-03 | `6464f54` | Aligned SEO, About, and Footer with the engineering portfolio position. |
 | 2026-08-03 | `3bd06d5` | Refactored public structure around DevOps and cybersecurity; removed Credentials and Services from public composition. |
 | 2026-08-03 | `9890c1f` | Added certification image preview cards and detailed certificate dialogs. |
+| 2026-08-03 | `11b1302` | Added GitHub profile link to Hero social links; relabeled nav CTA from "Hire Me" to "Get in Touch"; distinguished profile vs. source-code links in project modal. |
 
 ## Next review checklist
 
