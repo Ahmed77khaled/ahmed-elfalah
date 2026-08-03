@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import {
   ArrowRight,
+  BookMarked,
   Briefcase,
   CheckCircle2,
   Database,
@@ -101,6 +102,7 @@ export default function AdminDashboard() {
     { label: "Experience", value: data.stats.experience, icon: Briefcase, href: "/console/experience" },
     { label: "Messages", value: data.stats.messages, icon: MessageSquare, href: "/console/messages", badge: data.stats.unreadMessages },
     { label: "Reminders", value: pendingReminders.length, icon: BellRing, href: "/console/reminders", badge: pendingReminders.length },
+    { label: "Journey", value: "—", icon: BookMarked, href: "/console/journey" },
   ] : [];
 
   return (
@@ -227,6 +229,7 @@ export default function AdminDashboard() {
           <Button className="justify-start" onClick={() => navigate("/console/projects?new=1")}><Plus size={15} className="mr-2" />Add Project</Button>
           <Button className="justify-start" variant="outline" onClick={() => navigate("/console/skills?new=1")}><Plus size={15} className="mr-2" />Add Skill</Button>
           <Button className="justify-start" variant="outline" onClick={() => navigate("/console/experience?new=1")}><Plus size={15} className="mr-2" />Add Experience</Button>
+          <Button className="justify-start" variant="outline" onClick={() => navigate("/console/journey")}><BookMarked size={15} className="mr-2" />Manage Journey</Button>
         </div>
       </section>
     </div>

@@ -158,6 +158,15 @@ export const api = {
   getSettings: () => request<Record<string, string>>("GET", "/admin/settings"),
   saveSettings: (data: Record<string, string>) =>
     request<{ ok: boolean }>("PUT", "/admin/settings", data),
+
+  // Journey
+  getJourney: () => request<JourneyRow[]>("GET", "/admin/journey"),
+  createJourney: (data: JourneyPayload) =>
+    request<JourneyRow>("POST", "/admin/journey", data),
+  updateJourney: (id: number, data: Partial<JourneyPayload>) =>
+    request<JourneyRow>("PUT", `/admin/journey/${id}`, data),
+  deleteJourney: (id: number) =>
+    request<{ id: number }>("DELETE", `/admin/journey/${id}`),
 };
 
 export interface DashboardStats { projects: number; skills: number; experience: number; messages: number; unreadMessages: number; }
@@ -245,3 +254,20 @@ export interface MessageRow {
   read: boolean;
   createdAt: string;
 }
+
+export interface JourneyRow {
+  id: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  eventDate: string;         // "YYYY-MM-DD"
+  category: "education" | "achievement" | "personal" | "project";
+  tags: string[];
+  imageUrl: string;
+  imageCaption: string;
+  highlight: boolean;
+  displayOrder: number;
+  createdAt: string;
+}
+
+export type JourneyPayload = Omit<JourneyRow, "id" | "createdAt">;

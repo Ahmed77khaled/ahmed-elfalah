@@ -12,6 +12,7 @@ import { Experience } from "@/components/sections/Experience";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/sections/Footer";
 import { Certifications } from "@/components/sections/Certifications";
+import { Journey } from "@/components/sections/Journey";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -92,6 +93,10 @@ export default function Home() {
             <Hero />
 
             <About />
+
+            <div className="section-divider mx-6 md:mx-12" />
+
+            <Journey />
 
             <div className="section-divider mx-6 md:mx-12" />
 

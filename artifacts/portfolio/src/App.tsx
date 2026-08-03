@@ -17,6 +17,7 @@ const AdminExperience = lazy(() => import('@/pages/admin/Experience'));
 const AdminMessages   = lazy(() => import('@/pages/admin/Messages'));
 const AdminSettings   = lazy(() => import('@/pages/admin/Settings'));
 const AdminReminders  = lazy(() => import('@/pages/admin/Reminders'));
+const AdminJourney    = lazy(() => import('@/pages/admin/Journey'));
 const NotFound        = lazy(() => import('@/pages/not-found'));
 
 const queryClient = new QueryClient({
@@ -119,6 +120,13 @@ function Router() {
         <ProtectedRoute>
           <AdminLayout>
             <AdminSuspense><AdminReminders /></AdminSuspense>
+          </AdminLayout>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/console/journey">
+        <ProtectedRoute>
+          <AdminLayout>
+            <AdminSuspense><AdminJourney /></AdminSuspense>
           </AdminLayout>
         </ProtectedRoute>
       </Route>

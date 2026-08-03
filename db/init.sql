@@ -41,6 +41,20 @@ CREATE TABLE IF NOT EXISTS messages (
     bytes BYTEA NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
+  CREATE TABLE IF NOT EXISTS journey (
+    id            SERIAL PRIMARY KEY,
+    title         TEXT NOT NULL,
+    subtitle      TEXT NOT NULL DEFAULT '',
+    description   TEXT NOT NULL DEFAULT '',
+    event_date    DATE NOT NULL,
+    category      TEXT NOT NULL DEFAULT 'education',
+    tags          JSONB NOT NULL DEFAULT '[]'::jsonb,
+    image_url     TEXT NOT NULL DEFAULT '',
+    image_caption TEXT NOT NULL DEFAULT '',
+    highlight     BOOLEAN NOT NULL DEFAULT FALSE,
+    display_order INTEGER NOT NULL DEFAULT 0,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  );
 
 -- Initial portfolio content. Existing rows are never overwritten.
 INSERT INTO projects (title, subtitle, short_description, long_description, cover_image, github_url, demo_url, tech_stack, features, category, status, featured, display_order)
