@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Star, BookOpen, Trophy, Users, Zap, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, Star, BookOpen, Trophy, Users, Zap, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Images } from "lucide-react";
 import { ImageLightbox } from "@/components/ImageLightbox";
 
 type JourneyEntry = {
@@ -13,6 +13,7 @@ type JourneyEntry = {
   tags: string[];
   imageUrl: string;
   imageCaption: string;
+  galleryImages?: string[];
   highlight: boolean;
   displayOrder: number;
 };
@@ -41,12 +42,106 @@ function getYear(dateStr: string) {
   return dateStr.slice(0, 4);
 }
 
+function JourneyCardImage({
+  entry,
+  onOpenLightbox,
+}: {
+  entry: JourneyEntry;
+  onOpenLightbox: (images: string[], index: number, title: string) => void;
+}) {
+  const images =
+    entry.galleryImages && entry.galleryImages.length > 0
+      ? entry.galleryImages
+      : entry.imageUrl
+      ? [entry.imageUrl]
+      : [];
+
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  if (images.length === 0) return null;
+
+  const currentImg = images[currentIdx] || images[0];
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIdx((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentIdx((prev) => (prev + 1) % images.length);
+  };
+
+  return (
+    <div
+      className="relative w-full aspect-[16/9] overflow-hidden cursor-pointer bg-black/40 group/img"
+      onClick={() => onOpenLightbox(images, currentIdx, entry.imageCaption || entry.title)}
+    >
+      <img
+        src={currentImg}
+        alt={`${entry.title} - Photo ${currentIdx + 1}`}
+        loading="lazy"
+        className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+      />
+
+      {/* Overlay caption */}
+      {entry.imageCaption && (
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 py-3 pointer-events-none">
+          <p className="text-white text-xs font-medium truncate">{entry.imageCaption}</p>
+        </div>
+      )}
+
+      {/* Image Count Badge */}
+      {images.length > 1 && (
+        <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-white text-[11px] font-mono font-bold px-2.5 py-1 rounded-full border border-white/20 flex items-center gap-1.5 shadow-lg">
+          <Images size={12} className="text-primary" />
+          <span>{currentIdx + 1} / {images.length}</span>
+        </div>
+      )}
+
+      {/* Inline Nav Arrows for Multi-image */}
+      {images.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/60 text-white hover:bg-primary transition-all border border-white/20 opacity-0 group-hover/img:opacity-100 cursor-pointer"
+            aria-label="Previous photo"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/60 text-white hover:bg-primary transition-all border border-white/20 opacity-0 group-hover/img:opacity-100 cursor-pointer"
+            aria-label="Next photo"
+          >
+            <ChevronRight size={16} />
+          </button>
+        </>
+      )}
+
+      {/* Hover View Hint */}
+      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+        <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/30">
+          {images.length > 1 ? `View All ${images.length} Photos` : "View Full Photo"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function Journey() {
   const [entries, setEntries] = useState<JourneyEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [expanded, setExpanded] = useState<number | null>(null);
-  const [lightboxEntry, setLightboxEntry] = useState<JourneyEntry | null>(null);
+
+  const [lightboxState, setLightboxState] = useState<{
+    images: string[];
+    index: number;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     fetch("/api/journey")
@@ -74,15 +169,15 @@ export function Journey() {
 
   return (
     <section id="journey" className="relative py-24 md:py-32" data-testid="journey-section">
-      {/* Image Lightbox */}
-      {lightboxEntry?.imageUrl && (
+      {/* Multi-Image Lightbox */}
+      {lightboxState && (
         <ImageLightbox
           open
-          images={[lightboxEntry.imageUrl]}
-          currentIndex={0}
-          title={lightboxEntry.imageCaption || lightboxEntry.title}
-          onClose={() => setLightboxEntry(null)}
-          onIndexChange={() => {}}
+          images={lightboxState.images}
+          currentIndex={lightboxState.index}
+          title={lightboxState.title}
+          onClose={() => setLightboxState(null)}
+          onIndexChange={(idx) => setLightboxState((prev) => prev ? { ...prev, index: idx } : null)}
         />
       )}
 
@@ -195,30 +290,11 @@ export function Journey() {
                             : "border-border hover:border-primary/40 hover:shadow-lg"
                         }`}
                       >
-                        {/* Card Image */}
-                        {entry.imageUrl && (
-                          <div
-                            className="relative w-full aspect-[16/9] overflow-hidden cursor-pointer"
-                            onClick={() => setLightboxEntry(entry)}
-                          >
-                            <img
-                              src={entry.imageUrl}
-                              alt={entry.imageCaption || entry.title}
-                              loading="lazy"
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            {entry.imageCaption && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-                                <p className="text-white text-xs font-medium">{entry.imageCaption}</p>
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full border border-white/30">
-                                View Photo
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                        {/* Card Image Gallery */}
+                        <JourneyCardImage
+                          entry={entry}
+                          onOpenLightbox={(imgs, i, title) => setLightboxState({ images: imgs, index: i, title })}
+                        />
 
                         {/* Card Content */}
                         <div className="p-5">
@@ -257,24 +333,24 @@ export function Journey() {
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: "auto" }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="text-sm text-muted-foreground leading-relaxed mb-3 overflow-hidden"
+                                    className="text-sm text-muted-foreground leading-relaxed mb-3 overflow-hidden whitespace-pre-line"
                                   >
                                     {entry.description}
                                   </motion.p>
                                 )}
                               </AnimatePresence>
                               {!isExpanded && (
-                                <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">
+                                <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-3">
                                   {entry.description}
                                 </p>
                               )}
-                              {entry.description.length > 100 && (
+                              {entry.description.length > 120 && (
                                 <button
                                   type="button"
                                   onClick={() => setExpanded(isExpanded ? null : entry.id)}
                                   className="text-[11px] text-primary hover:text-primary/80 font-semibold flex items-center gap-1 mb-3 transition-colors"
                                 >
-                                  {isExpanded ? <><ChevronUp size={12} /> Show less</> : <><ChevronDown size={12} /> Read more</>}
+                                  {isExpanded ? <><ChevronUp size={12} /> Show less</> : <><ChevronDown size={12} /> Read full details</>}
                                 </button>
                               )}
                             </>

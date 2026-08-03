@@ -265,6 +265,7 @@ export interface JourneyRow {
   tags: string[];
   imageUrl: string;
   imageCaption: string;
+  galleryImages?: string[];
   highlight: boolean;
   displayOrder: number;
   createdAt: string;

@@ -22,6 +22,7 @@ const EMPTY: JourneyPayload = {
   tags: [],
   imageUrl: "",
   imageCaption: "",
+  galleryImages: [],
   highlight: false,
   displayOrder: 0,
 };
@@ -341,6 +342,7 @@ export default function AdminJourneyPage() {
                     tags: entry.tags ?? [],
                     imageUrl: entry.imageUrl,
                     imageCaption: entry.imageCaption,
+                    galleryImages: entry.galleryImages ?? [],
                     highlight: entry.highlight,
                     displayOrder: entry.displayOrder,
                   }}

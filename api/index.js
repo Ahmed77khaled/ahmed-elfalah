@@ -68,7 +68,7 @@ const experienceColumns = `id, company, position, description, start_date AS "st
 const messageColumns = `id, name, email, subject, message, read, created_at AS "createdAt"`;
 const reminderColumns = `id, title, TO_CHAR(due_date, 'YYYY-MM-DD') AS "dueDate", notes, status, notified_before AS "notifiedBefore", notified_due AS "notifiedDue", created_at AS "createdAt", completed_at AS "completedAt"`;
 const mediaColumns = `id, filename, mime_type AS "mimeType", created_at AS "createdAt"`;
-const journeyColumns = `id, title, subtitle, description, TO_CHAR(event_date, 'YYYY-MM-DD') AS "eventDate", category, tags, image_url AS "imageUrl", image_caption AS "imageCaption", highlight, display_order AS "displayOrder", created_at AS "createdAt"`;
+const journeyColumns = `id, title, subtitle, description, TO_CHAR(event_date, 'YYYY-MM-DD') AS "eventDate", category, tags, image_url AS "imageUrl", image_caption AS "imageCaption", gallery_images AS "galleryImages", highlight, display_order AS "displayOrder", created_at AS "createdAt"`;
 
 async function saveProject(body, id) {
   const values = [body.title ?? "", body.subtitle ?? "", body.shortDescription ?? "", body.longDescription ?? "", body.coverImage ?? "", body.coverImagePosition ?? "center center", JSON.stringify(body.galleryImages ?? []), body.githubUrl ?? "", body.demoUrl ?? "", JSON.stringify(body.techStack ?? []), JSON.stringify(body.features ?? []), body.category ?? "", body.status ?? "published", body.featured ?? false, body.displayOrder ?? 0];
@@ -132,10 +132,12 @@ async function ensureJourneyTable() {
     tags          JSONB NOT NULL DEFAULT '[]'::jsonb,
     image_url     TEXT NOT NULL DEFAULT '',
     image_caption TEXT NOT NULL DEFAULT '',
+    gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb,
     highlight     BOOLEAN NOT NULL DEFAULT FALSE,
     display_order INTEGER NOT NULL DEFAULT 0,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
+  await query(`ALTER TABLE journey ADD COLUMN IF NOT EXISTS gallery_images JSONB NOT NULL DEFAULT '[]'::jsonb`);
   journeyTableEnsured = true;
 }
 
@@ -159,14 +161,14 @@ async function handleAdminJourney(req, res, id) {
     }
     if (req.method === "POST") {
       const b = req.body ?? {};
-      const values = [b.title ?? "", b.subtitle ?? "", b.description ?? "", b.eventDate ?? new Date().toISOString().slice(0, 10), b.category ?? "education", JSON.stringify(b.tags ?? []), b.imageUrl ?? "", b.imageCaption ?? "", b.highlight ?? false, b.displayOrder ?? 0];
-      const { rows } = await query(`INSERT INTO journey (title,subtitle,description,event_date,category,tags,image_url,image_caption,highlight,display_order) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10) RETURNING ${journeyColumns}`, values);
+      const values = [b.title ?? "", b.subtitle ?? "", b.description ?? "", b.eventDate ?? new Date().toISOString().slice(0, 10), b.category ?? "education", JSON.stringify(b.tags ?? []), b.imageUrl ?? "", b.imageCaption ?? "", JSON.stringify(b.galleryImages ?? []), b.highlight ?? false, b.displayOrder ?? 0];
+      const { rows } = await query(`INSERT INTO journey (title,subtitle,description,event_date,category,tags,image_url,image_caption,gallery_images,highlight,display_order) VALUES ($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9::jsonb,$10,$11) RETURNING ${journeyColumns}`, values);
       return res.status(201).json({ success: true, data: rows[0] });
     }
     if (req.method === "PUT" && Number.isInteger(id)) {
       const b = req.body ?? {};
-      const values = [b.title ?? "", b.subtitle ?? "", b.description ?? "", b.eventDate ?? new Date().toISOString().slice(0, 10), b.category ?? "education", JSON.stringify(b.tags ?? []), b.imageUrl ?? "", b.imageCaption ?? "", b.highlight ?? false, b.displayOrder ?? 0, id];
-      const { rows } = await query(`UPDATE journey SET title=$1,subtitle=$2,description=$3,event_date=$4,category=$5,tags=$6::jsonb,image_url=$7,image_caption=$8,highlight=$9,display_order=$10 WHERE id=$11 RETURNING ${journeyColumns}`, values);
+      const values = [b.title ?? "", b.subtitle ?? "", b.description ?? "", b.eventDate ?? new Date().toISOString().slice(0, 10), b.category ?? "education", JSON.stringify(b.tags ?? []), b.imageUrl ?? "", b.imageCaption ?? "", JSON.stringify(b.galleryImages ?? []), b.highlight ?? false, b.displayOrder ?? 0, id];
+      const { rows } = await query(`UPDATE journey SET title=$1,subtitle=$2,description=$3,event_date=$4,category=$5,tags=$6::jsonb,image_url=$7,image_caption=$8,gallery_images=$9::jsonb,highlight=$10,display_order=$11 WHERE id=$12 RETURNING ${journeyColumns}`, values);
       return rows[0] ? res.status(200).json({ success: true, data: rows[0] }) : res.status(404).json({ error: "Journey entry not found" });
     }
     if (req.method === "DELETE" && Number.isInteger(id)) {
